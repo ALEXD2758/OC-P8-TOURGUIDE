@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -76,9 +79,9 @@ public class TourGuideService {
 	}
 	
 	public List<Provider> getTripDeals(User user) {
-		int cumulatativeRewardPoints = user.getUserRewards().stream().mapToInt(i -> i.getRewardPoints()).sum();
+		int cumulativeRewardPoints = user.getUserRewards().stream().mapToInt(i -> i.getRewardPoints()).sum();
 		List<Provider> providers = tripPricer.getPrice(tripPricerApiKey, user.getUserId(), user.getUserPreferences().getNumberOfAdults(), 
-				user.getUserPreferences().getNumberOfChildren(), user.getUserPreferences().getTripDuration(), cumulatativeRewardPoints);
+				user.getUserPreferences().getNumberOfChildren(), user.getUserPreferences().getTripDuration(), cumulativeRewardPoints);
 		user.setTripDeals(providers);
 		return providers;
 	}
@@ -86,8 +89,23 @@ public class TourGuideService {
 	public VisitedLocation trackUserLocation(User user) {
 		VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
 		user.addToVisitedLocations(visitedLocation);
-		rewardsService.calculateRewards(user);
+		//rewardsService.calculateRewards(user);
 		return visitedLocation;
+	}
+
+	public void trackListUserLocation(List<User> userList) throws InterruptedException {
+		ExecutorService executorService = Executors.newFixedThreadPool(30);
+
+		for (User user: userList) {
+			Runnable runnable = () -> {
+				trackUserLocation(user);
+			};
+			executorService.execute(runnable);
+		}
+		executorService.shutdown();
+		executorService.awaitTermination(15, TimeUnit.MINUTES);
+
+		return;
 	}
 
 	public List<Attraction> getNearByAttractions(VisitedLocation visitedLocation) {

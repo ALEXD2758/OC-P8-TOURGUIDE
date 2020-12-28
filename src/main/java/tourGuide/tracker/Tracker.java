@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import tourGuide.service.RewardsService;
 import tourGuide.service.TourGuideService;
-import tourGuide.user.User;
+import tourGuide.model.UserModel;
 
 public class Tracker extends Thread {
 	private Logger logger = LoggerFactory.getLogger(Tracker.class);
@@ -51,7 +51,7 @@ public class Tracker extends Thread {
 				break;
 			}
 			
-			List<User> users = tourGuideService.getAllUsers();
+			List<UserModel> users = tourGuideService.getAllUsers();
 			logger.debug("Begin Tracker. Tracking " + users.size() + " users.");
 			stopWatch.start();
 

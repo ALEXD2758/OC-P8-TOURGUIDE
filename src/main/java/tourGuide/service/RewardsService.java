@@ -9,8 +9,8 @@ import gpsUtil.location.Attraction;
 import gpsUtil.location.Location;
 import gpsUtil.location.VisitedLocation;
 import rewardCentral.RewardCentral;
-import tourGuide.user.User;
-import tourGuide.user.UserReward;
+import tourGuide.model.UserModel;
+import tourGuide.model.UserRewardModel;
 
 @Service
 public class RewardsService {
@@ -44,7 +44,7 @@ public class RewardsService {
 	 * Calculate the rewards for each attraction in the visited location list
 	 * @param user
 	 */
-	public void calculateRewards(User user) {
+	public void calculateRewards(UserModel user) {
 		List<VisitedLocation> userLocations = user.getVisitedLocations();
 		List<Attraction> attractions = gpsUtil.getAttractions();
 		
@@ -52,7 +52,7 @@ public class RewardsService {
 			for(Attraction attraction : attractions) {
 				if(user.getUserRewards().stream().filter(r -> r.attraction.attractionName.equals(attraction.attractionName)).count() == 0) {
 					if(nearAttraction(visitedLocation, attraction)) {
-						user.addUserReward(new UserReward(visitedLocation, attraction, getRewardPoints(attraction, user)));
+						user.addUserReward(new UserRewardModel(visitedLocation, attraction, getRewardPoints(attraction, user)));
 					}
 				}
 			}
@@ -85,7 +85,7 @@ public class RewardsService {
 	 * @param user non-used at the moment
 	 * @return int of a reward point
 	 */
-	private int getRewardPoints(Attraction attraction, User user) {
+	private int getRewardPoints(Attraction attraction, UserModel user) {
 		return rewardsCentral.getAttractionRewardPoints(attraction.attractionId, user.getUserId());
 	}
 

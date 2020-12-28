@@ -25,8 +25,8 @@ import gpsUtil.location.Location;
 import gpsUtil.location.VisitedLocation;
 import tourGuide.helper.InternalTestHelper;
 import tourGuide.tracker.Tracker;
-import tourGuide.user.User;
-import tourGuide.user.UserReward;
+import tourGuide.model.UserModel;
+import tourGuide.model.UserRewardModel;
 import tripPricer.Provider;
 import tripPricer.TripPricer;
 
@@ -67,7 +67,7 @@ public class TourGuideService {
 	 * @param userName
 	 * @return a user
 	 */
-	public User getUser(String userName) {
+	public UserModel getUser(String userName) {
 		return internalUserMap.get(userName);
 	}
 
@@ -75,7 +75,7 @@ public class TourGuideService {
 	 * Get a list of all users from the InternalUserMap
 	 * @return a list of users
 	 */
-	public List<User> getAllUsers() {
+	public List<UserModel> getAllUsers() {
 		return internalUserMap.values().stream().collect(Collectors.toList());
 	}
 
@@ -83,7 +83,7 @@ public class TourGuideService {
 	 * Add a user to the InternalUserMap if does not contain already the userName
 	 * @param user
 	 */
-	public void addUser(User user) {
+	public void addUser(UserModel user) {
 		if(!internalUserMap.containsKey(user.getUserName())) {
 			internalUserMap.put(user.getUserName(), user);
 		}
@@ -93,7 +93,7 @@ public class TourGuideService {
 	 * @param user
 	 * @return a list of UserRewards
 	 */
-	public List<UserReward> getUserRewards(User user) {
+	public List<UserRewardModel> getUserRewards(UserModel user) {
 		return user.getUserRewards();
 	}
 
@@ -104,7 +104,7 @@ public class TourGuideService {
 	 * @param user
 	 * @return a visitedLocation
 	 */
-	public VisitedLocation getUserVisitedLocation(User user) {
+	public VisitedLocation getUserVisitedLocation(UserModel user) {
 		VisitedLocation visitedLocation = (user.getVisitedLocations().size() > 0) ?
 			user.getLastVisitedLocation() :
 			trackUserLocation(user);
@@ -116,7 +116,7 @@ public class TourGuideService {
 	 * @param user the concerned user
 	 * @return list of Provider
 	 */
-	public List<Provider> getTripDeals(User user) {
+	public List<Provider> getTripDeals(UserModel user) {
 		int cumulativeRewardPoints = user.getUserRewards().stream().mapToInt(i -> i.getRewardPoints()).sum();
 		List<Provider> providers = tripPricer.getPrice(tripPricerApiKey, user.getUserId(),
 				user.getUserPreferences().getNumberOfAdults(),
@@ -131,7 +131,7 @@ public class TourGuideService {
 	 * @param user
 	 * @return the visited location of the random location of user
 	 */
-	public VisitedLocation trackUserLocation(User user) {
+	public VisitedLocation trackUserLocation(UserModel user) {
 		VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
 		user.addToVisitedLocations(visitedLocation);
 		rewardsService.calculateRewards(user);
@@ -143,10 +143,10 @@ public class TourGuideService {
 	 * @param userList the list containing all users
 	 * @throws InterruptedException
 	 */
-	public void trackListUserLocation(List<User> userList) throws InterruptedException {
+	public void trackListUserLocation(List<UserModel> userList) throws InterruptedException {
 		ExecutorService executorService = Executors.newFixedThreadPool(8);
 
-		for (User user: userList) {
+		for (UserModel user: userList) {
 			Runnable runnable = () -> {
 				trackUserLocation(user);
 			};
@@ -192,13 +192,13 @@ public class TourGuideService {
 	 **********************************************************************************/
 	private static final String tripPricerApiKey = "test-server-api-key";
 	// Database connection will be used for external users, but for testing purposes internal users are provided and stored in memory
-	private final Map<String, User> internalUserMap = new HashMap<>();
+	private final Map<String, UserModel> internalUserMap = new HashMap<>();
 	private void initializeInternalUsers() {
 		IntStream.range(0, InternalTestHelper.getInternalUserNumber()).forEach(i -> {
 			String userName = "internalUser" + i;
 			String phone = "000";
 			String email = userName + "@tourGuide.com";
-			User user = new User(UUID.randomUUID(), userName, phone, email);
+			UserModel user = new UserModel(UUID.randomUUID(), userName, phone, email);
 			generateUserLocationHistory(user);
 			
 			internalUserMap.put(userName, user);
@@ -210,7 +210,7 @@ public class TourGuideService {
 	 * Generate a user location history of 3 visited locations for the current user
 	 * @param user
 	 */
-	private void generateUserLocationHistory(User user) {
+	private void generateUserLocationHistory(UserModel user) {
 		IntStream.range(0, 3).forEach(i-> {
 			user.addToVisitedLocations(new VisitedLocation(user.getUserId(), new Location(generateRandomLatitude(), generateRandomLongitude()), getRandomTime()));
 		});

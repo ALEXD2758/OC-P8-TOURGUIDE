@@ -144,7 +144,7 @@ public class TourGuideService {
 	 * @throws InterruptedException
 	 */
 	public void trackListUserLocation(List<UserModel> userList) throws InterruptedException {
-		ExecutorService executorService = Executors.newFixedThreadPool(8);
+		ExecutorService executorService = Executors.newFixedThreadPool(42);
 
 		for (UserModel user: userList) {
 			Runnable runnable = () -> {

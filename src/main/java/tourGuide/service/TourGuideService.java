@@ -3,12 +3,11 @@ package tourGuide.service;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -160,23 +159,44 @@ public class TourGuideService {
 	 * @return a list of attractions
 	 */
 	public List<UserNearestAttractions> getNearestAttractions(VisitedLocation visitedLocation, UserModel user) {
+
+		ExecutorService executorService = Executors.newFixedThreadPool(32);
 		List<Attraction> attractions = gpsUtil.getAttractions();
 		List<UserNearestAttractions> nearestAttractions = new ArrayList<>();
 
-		//attractions.addAll(gpsUtil.getAttractions());
+		StopWatch stopWatch = new StopWatch();
 
-		nearestAttractions =
-				attractions.parallelStream().map(attra -> new UserNearestAttractions(attra.attractionName,
-						attra.longitude, attra.latitude, visitedLocation.location, rewardsService.getDistance(attra,
-						visitedLocation.location), rewardsService.getRewardPoints(attra, user)))
-						.sorted(Comparator.comparing(UserNearestAttractions::getAttractionProximityRangeMiles))
-						.collect(Collectors.toList());
+		stopWatch.start();
+		List<Future> futuresList = new ArrayList<>();
+		for (Attraction attraction : attractions) {
+			Callable changeUserNearest = () -> new UserNearestAttractions(attraction.attractionName,
+					attraction.longitude, attraction.latitude,
+					visitedLocation.location, rewardsService.getDistance(attraction, visitedLocation.location),
+					rewardsService.getRewardPoints(attraction, user));
+			Future mapUserNearestAttractions = executorService.submit(changeUserNearest);
+			futuresList.add(mapUserNearestAttractions);
+		};
 
-		nearestAttractions = nearestAttractions.stream()
-												.limit(nbNearestAttractions)
-												.collect(Collectors.toList());
-		
-		return nearestAttractions;
+		for (Future future: futuresList) {
+			UserNearestAttractions at = null;
+			try {
+				at = (UserNearestAttractions) future.get();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				e.printStackTrace();
+			}
+			nearestAttractions.add(at);
+		}
+
+		List<UserNearestAttractions> listAttractionsSorted = nearestAttractions
+				.parallelStream()
+				.sorted(Comparator.comparing(UserNearestAttractions::getAttractionProximityRangeMiles)).limit(nbNearestAttractions)
+				.collect(Collectors.toList());
+		stopWatch.stop();
+		System.out.println("It required : " + stopWatch.getTime() + " milliseconds");
+
+		return listAttractionsSorted;
 	}
 
 	/**

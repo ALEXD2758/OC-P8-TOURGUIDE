@@ -5,25 +5,45 @@ import gpsUtil.location.Location;
 
 public class UserNearestAttractions {
 
-    private Attraction attraction;
+    private String attractionName;
+    private double attractionLongitude;
+    private double attractionLatitude;
     private Location location;
-    private int attractionProximityRangeMiles;
+    private double attractionProximityRangeMiles;
     private int rewardsPoints;
 
-    public UserNearestAttractions(Attraction attraction, Location location, int attractionProximityRangeMiles,
-                                  int rewardsPoints) {
-        this.attraction = attraction;
+    public UserNearestAttractions(String attractionName, double attractionLongitude, double attractionLatitude,
+                                  Location location, double attractionProximityRangeMiles, int rewardsPoints) {
+        this.attractionName = attractionName;
+        this.attractionLongitude = attractionLongitude;
+        this.attractionLatitude = attractionLatitude;
         this.location = location;
         this.attractionProximityRangeMiles = attractionProximityRangeMiles;
         this.rewardsPoints = rewardsPoints;
     }
 
-    public Attraction getAttraction() {
-        return attraction;
+    public String getAttractionName() {
+        return attractionName;
     }
 
-    public void setAttraction(Attraction attraction) {
-        this.attraction = attraction;
+    public void setAttractionName(String attractionName) {
+        this.attractionName = attractionName;
+    }
+
+    public double getAttractionLongitude() {
+        return attractionLongitude;
+    }
+
+    public void setAttractionLongitude(double attractionLongitude) {
+        this.attractionLongitude = attractionLongitude;
+    }
+
+    public double getAttractionLatitude() {
+        return attractionLatitude;
+    }
+
+    public void setAttractionLatitude(double attractionLatitude) {
+        this.attractionLatitude = attractionLatitude;
     }
 
     public Location getLocation() {
@@ -34,11 +54,11 @@ public class UserNearestAttractions {
         this.location = location;
     }
 
-    public int getAttractionProximityRangeMiles() {
+    public double getAttractionProximityRangeMiles() {
         return attractionProximityRangeMiles;
     }
 
-    public void setAttractionProximityRangeMiles(int attractionProximityRangeMiles) {
+    public void setAttractionProximityRangeMiles(double attractionProximityRangeMiles) {
         this.attractionProximityRangeMiles = attractionProximityRangeMiles;
     }
 

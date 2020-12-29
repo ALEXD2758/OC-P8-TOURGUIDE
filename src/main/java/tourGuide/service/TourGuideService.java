@@ -2,13 +2,7 @@ package tourGuide.service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -24,6 +18,7 @@ import gpsUtil.location.Attraction;
 import gpsUtil.location.Location;
 import gpsUtil.location.VisitedLocation;
 import tourGuide.helper.InternalTestHelper;
+import tourGuide.model.UserNearestAttractions;
 import tourGuide.tracker.Tracker;
 import tourGuide.model.UserModel;
 import tourGuide.model.UserRewardModel;
@@ -38,6 +33,7 @@ public class TourGuideService {
 	private final TripPricer tripPricer = new TripPricer();
 	public final Tracker tracker;
 	boolean testMode = true;
+	private final int nbNearestAttractions = 5;
 
 	/**
 	 * Constructor of the class TourGuideService for initializing users
@@ -163,15 +159,24 @@ public class TourGuideService {
 	 * @param visitedLocation
 	 * @return a list of attractions
 	 */
-	public List<Attraction> getNearByAttractions(VisitedLocation visitedLocation) {
-		List<Attraction> nearbyAttractions = new ArrayList<>();
-		for(Attraction attraction : gpsUtil.getAttractions()) {
-			if(rewardsService.isWithinAttractionProximity(attraction, visitedLocation.location)) {
-				nearbyAttractions.add(attraction);
-			}
-		}
+	public List<UserNearestAttractions> getNearestAttractions(VisitedLocation visitedLocation, UserModel user) {
+		List<Attraction> attractions = gpsUtil.getAttractions();
+		List<UserNearestAttractions> nearestAttractions = new ArrayList<>();
+
+		//attractions.addAll(gpsUtil.getAttractions());
+
+		nearestAttractions =
+				attractions.parallelStream().map(attra -> new UserNearestAttractions(attra.attractionName,
+						attra.longitude, attra.latitude, visitedLocation.location, rewardsService.getDistance(attra,
+						visitedLocation.location), rewardsService.getRewardPoints(attra, user)))
+						.sorted(Comparator.comparing(UserNearestAttractions::getAttractionProximityRangeMiles))
+						.collect(Collectors.toList());
+
+		nearestAttractions = nearestAttractions.stream()
+												.limit(nbNearestAttractions)
+												.collect(Collectors.toList());
 		
-		return nearbyAttractions;
+		return nearestAttractions;
 	}
 
 	/**

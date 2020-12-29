@@ -85,7 +85,7 @@ public class RewardsService {
 	 * @param user non-used at the moment
 	 * @return int of a reward point
 	 */
-	private int getRewardPoints(Attraction attraction, UserModel user) {
+	public int getRewardPoints(Attraction attraction, UserModel user) {
 		return rewardsCentral.getAttractionRewardPoints(attraction.attractionId, user.getUserId());
 	}
 

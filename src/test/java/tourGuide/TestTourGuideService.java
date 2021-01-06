@@ -10,11 +10,10 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import gpsUtil.GpsUtil;
-import gpsUtil.location.Attraction;
 import gpsUtil.location.VisitedLocation;
 import rewardCentral.RewardCentral;
 import tourGuide.helper.InternalTestHelper;
-import tourGuide.model.UserNearestAttractions;
+import tourGuide.model.UserNearestAttractionsModel;
 import tourGuide.service.RewardsService;
 import tourGuide.service.TourGuideService;
 import tourGuide.model.UserModel;
@@ -104,7 +103,7 @@ public class TestTourGuideService {
 		UserModel user = new UserModel(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
 		VisitedLocation visitedLocation = tourGuideService.trackUserLocation(user);
 		
-		List<UserNearestAttractions> attractions = tourGuideService.getNearestAttractions(visitedLocation, user);
+		List<UserNearestAttractionsModel> attractions = tourGuideService.getNearestAttractions(visitedLocation, user);
 		
 		tourGuideService.tracker.stopTracking();
 		

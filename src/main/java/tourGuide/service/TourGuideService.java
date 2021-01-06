@@ -16,11 +16,10 @@ import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.Location;
 import gpsUtil.location.VisitedLocation;
+import tourGuide.dto.UserPreferencesDTO;
 import tourGuide.helper.InternalTestHelper;
-import tourGuide.model.UserNearestAttractions;
+import tourGuide.model.*;
 import tourGuide.tracker.Tracker;
-import tourGuide.model.UserModel;
-import tourGuide.model.UserRewardModel;
 import tripPricer.Provider;
 import tripPricer.TripPricer;
 
@@ -113,6 +112,7 @@ public class TourGuideService {
 	 */
 	public List<Provider> getTripDeals(UserModel user) {
 		int cumulativeRewardPoints = user.getUserRewards().stream().mapToInt(i -> i.getRewardPoints()).sum();
+
 		List<Provider> providers = tripPricer.getPrice(tripPricerApiKey, user.getUserId(),
 				user.getUserPreferences().getNumberOfAdults(),
 				user.getUserPreferences().getNumberOfChildren(),
@@ -154,22 +154,37 @@ public class TourGuideService {
 	}
 
 	/**
+	 * Get a list of all user Locations from the existent GpsUtil list (tracking locations every X second)
+	 * @return a list of UserLocationModel containing all user ID's and location
+	 */
+	public List<UserLocationModel> getAllUsersLocation() {
+		List<UserModel> userList = getAllUsers();
+		List<UserLocationModel> userLocationList = new ArrayList<>();
+
+		userList.forEach(u -> {
+			userLocationList.add(new UserLocationModel(u.getLastVisitedLocation().location, u.getUserId().toString()));
+		});
+
+		return userLocationList;
+	}
+
+	/**
 	 * Get the closest 5 attractions of the user
 	 * @param visitedLocation
 	 * @return a list of attractions
 	 */
-	public List<UserNearestAttractions> getNearestAttractions(VisitedLocation visitedLocation, UserModel user) {
+	public List<UserNearestAttractionsModel> getNearestAttractions(VisitedLocation visitedLocation, UserModel user) {
 
 		ExecutorService executorService = Executors.newFixedThreadPool(32);
 		List<Attraction> attractions = gpsUtil.getAttractions();
-		List<UserNearestAttractions> nearestAttractions = new ArrayList<>();
+		List<UserNearestAttractionsModel> nearestAttractions = new ArrayList<>();
 
 		StopWatch stopWatch = new StopWatch();
 
 		stopWatch.start();
 		List<Future> futuresList = new ArrayList<>();
 		for (Attraction attraction : attractions) {
-			Callable changeUserNearest = () -> new UserNearestAttractions(attraction.attractionName,
+			Callable changeUserNearest = () -> new UserNearestAttractionsModel(attraction.attractionName,
 					attraction.longitude, attraction.latitude,
 					visitedLocation.location, rewardsService.getDistance(attraction, visitedLocation.location),
 					rewardsService.getRewardPoints(attraction, user));
@@ -178,9 +193,9 @@ public class TourGuideService {
 		};
 
 		for (Future future: futuresList) {
-			UserNearestAttractions at = null;
+			UserNearestAttractionsModel at = null;
 			try {
-				at = (UserNearestAttractions) future.get();
+				at = (UserNearestAttractionsModel) future.get();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			} catch (ExecutionException e) {
@@ -189,9 +204,9 @@ public class TourGuideService {
 			nearestAttractions.add(at);
 		}
 
-		List<UserNearestAttractions> listAttractionsSorted = nearestAttractions
-				.parallelStream()
-				.sorted(Comparator.comparing(UserNearestAttractions::getAttractionProximityRangeMiles)).limit(nbNearestAttractions)
+		List<UserNearestAttractionsModel> listAttractionsSorted = nearestAttractions
+				.stream()
+				.sorted(Comparator.comparing(UserNearestAttractionsModel::getAttractionProximityRangeMiles)).limit(nbNearestAttractions)
 				.collect(Collectors.toList());
 		stopWatch.stop();
 		System.out.println("It required : " + stopWatch.getTime() + " milliseconds");
@@ -208,6 +223,12 @@ public class TourGuideService {
 		        tracker.stopTracking();
 		      } 
 		    }); 
+	}
+
+	public UserPreferencesModel userUpdatePreferences (UserPreferencesDTO userPreferencesDTO) {
+		UserModel user= getUser(userPreferencesDTO.getUsername());
+		user.setUserPreferences(new UserPreferencesModel(userPreferencesDTO));
+		return user.getUserPreferences();
 	}
 	
 	/**********************************************************************************

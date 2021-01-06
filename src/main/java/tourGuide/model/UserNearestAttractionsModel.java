@@ -3,7 +3,7 @@ package tourGuide.model;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.Location;
 
-public class UserNearestAttractions {
+public class UserNearestAttractionsModel {
 
     private String attractionName;
     private double attractionLongitude;
@@ -12,8 +12,8 @@ public class UserNearestAttractions {
     private double attractionProximityRangeMiles;
     private int rewardsPoints;
 
-    public UserNearestAttractions(String attractionName, double attractionLongitude, double attractionLatitude,
-                                  Location location, double attractionProximityRangeMiles, int rewardsPoints) {
+    public UserNearestAttractionsModel(String attractionName, double attractionLongitude, double attractionLatitude,
+                                       Location location, double attractionProximityRangeMiles, int rewardsPoints) {
         this.attractionName = attractionName;
         this.attractionLongitude = attractionLongitude;
         this.attractionLatitude = attractionLatitude;

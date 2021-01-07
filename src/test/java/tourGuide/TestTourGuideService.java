@@ -10,13 +10,13 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import gpsUtil.GpsUtil;
-import gpsUtil.location.Attraction;
 import gpsUtil.location.VisitedLocation;
 import rewardCentral.RewardCentral;
 import tourGuide.helper.InternalTestHelper;
+import tourGuide.model.UserNearestAttractionsModel;
 import tourGuide.service.RewardsService;
 import tourGuide.service.TourGuideService;
-import tourGuide.user.User;
+import tourGuide.model.UserModel;
 import tripPricer.Provider;
 
 public class TestTourGuideService {
@@ -28,7 +28,7 @@ public class TestTourGuideService {
 		InternalTestHelper.setInternalUserNumber(0);
 		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
 		
-		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
+		UserModel user = new UserModel(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
 		VisitedLocation visitedLocation = tourGuideService.trackUserLocation(user);
 		tourGuideService.tracker.stopTracking();
 		assertTrue(visitedLocation.userId.equals(user.getUserId()));
@@ -41,14 +41,14 @@ public class TestTourGuideService {
 		InternalTestHelper.setInternalUserNumber(0);
 		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
 		
-		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
-		User user2 = new User(UUID.randomUUID(), "jon2", "000", "jon2@tourGuide.com");
+		UserModel user = new UserModel(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
+		UserModel user2 = new UserModel(UUID.randomUUID(), "jon2", "000", "jon2@tourGuide.com");
 
 		tourGuideService.addUser(user);
 		tourGuideService.addUser(user2);
 		
-		User retrivedUser = tourGuideService.getUser(user.getUserName());
-		User retrivedUser2 = tourGuideService.getUser(user2.getUserName());
+		UserModel retrivedUser = tourGuideService.getUser(user.getUserName());
+		UserModel retrivedUser2 = tourGuideService.getUser(user2.getUserName());
 
 		tourGuideService.tracker.stopTracking();
 		
@@ -63,13 +63,13 @@ public class TestTourGuideService {
 		InternalTestHelper.setInternalUserNumber(0);
 		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
 		
-		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
-		User user2 = new User(UUID.randomUUID(), "jon2", "000", "jon2@tourGuide.com");
+		UserModel user = new UserModel(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
+		UserModel user2 = new UserModel(UUID.randomUUID(), "jon2", "000", "jon2@tourGuide.com");
 
 		tourGuideService.addUser(user);
 		tourGuideService.addUser(user2);
 		
-		List<User> allUsers = tourGuideService.getAllUsers();
+		List<UserModel> allUsers = tourGuideService.getAllUsers();
 
 		tourGuideService.tracker.stopTracking();
 		
@@ -84,7 +84,7 @@ public class TestTourGuideService {
 		InternalTestHelper.setInternalUserNumber(0);
 		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
 		
-		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
+		UserModel user = new UserModel(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
 		VisitedLocation visitedLocation = tourGuideService.trackUserLocation(user);
 		
 		tourGuideService.tracker.stopTracking();
@@ -100,10 +100,10 @@ public class TestTourGuideService {
 		InternalTestHelper.setInternalUserNumber(0);
 		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
 		
-		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
+		UserModel user = new UserModel(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
 		VisitedLocation visitedLocation = tourGuideService.trackUserLocation(user);
 		
-		List<Attraction> attractions = tourGuideService.getNearByAttractions(visitedLocation);
+		List<UserNearestAttractionsModel> attractions = tourGuideService.getNearestAttractions(visitedLocation, user);
 		
 		tourGuideService.tracker.stopTracking();
 		
@@ -116,7 +116,7 @@ public class TestTourGuideService {
 		InternalTestHelper.setInternalUserNumber(0);
 		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
 		
-		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
+		UserModel user = new UserModel(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
 
 		List<Provider> providers = tourGuideService.getTripDeals(user);
 		

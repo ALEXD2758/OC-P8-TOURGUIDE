@@ -16,7 +16,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class RewardsService {
 
 	//A statute mile is what is called more commonly a mile
-	//An international statute mile is 1,609.344 meters
+	//An international statute mile is 1609.344 meters
 	//A US statute mile (survey mile) is 1609.3472 meters
 	private static final double STATUTE_MILES_PER_NAUTICAL_MILE = 1.15077945;
 
@@ -46,7 +46,6 @@ public class RewardsService {
 	 * @param user the user model
 	 */
 	public void calculateRewards(UserModel user) {
-
 		CopyOnWriteArrayList<VisitedLocation> userLocations = new CopyOnWriteArrayList<>();
 		List<Attraction> attractions = new CopyOnWriteArrayList<>();
 
@@ -80,7 +79,7 @@ public class RewardsService {
 	 * @param attraction
 	 * @return boolean if visited location is within attraction range
 	 */
-	public boolean nearAttraction(VisitedLocation visitedLocation, Attraction attraction) {
+	private boolean nearAttraction(VisitedLocation visitedLocation, Attraction attraction) {
 		return getDistance(attraction, visitedLocation.location) > proximityBuffer ? false : true;
 	}
 

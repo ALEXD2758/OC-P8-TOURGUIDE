@@ -67,7 +67,6 @@ public class TourGuideController {
      */
     @GetMapping("/getAllCurrentLocations")
     public String getAllCurrentLocations() {
-
     	return JsonStream.serialize(tourGuideService.getAllUsersLocation());
     }
 

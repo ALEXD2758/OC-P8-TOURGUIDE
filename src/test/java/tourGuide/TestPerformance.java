@@ -1,6 +1,7 @@
 package tourGuide;
 
 import gpsUtil.GpsUtil;
+import gpsUtil.location.Attraction;
 import gpsUtil.location.VisitedLocation;
 import org.apache.commons.lang3.time.StopWatch;
 import org.junit.Test;
@@ -11,6 +12,7 @@ import tourGuide.service.RewardsService;
 import tourGuide.service.TourGuideService;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -79,7 +81,7 @@ public class TestPerformance {
 
 		//Asserting part that the time is as performant as wanted
 		System.out.println("highVolumeTrackLocation: Time Elapsed: " + TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()) + " seconds."); 
-		assertTrue(TimeUnit.MINUTES.toMinutes(15) >= TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()));
+		assertTrue(TimeUnit.MINUTES.toSeconds(15) >= TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()));
 
 	}
 
@@ -89,7 +91,7 @@ public class TestPerformance {
 		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
 
 		// Users should be incremented up to 100,000, and test finishes within 20 minutes
-		InternalTestHelper.setInternalUserNumber(100);
+		InternalTestHelper.setInternalUserNumber(100000);
 		//Create a stopWatch and start it
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
@@ -100,14 +102,20 @@ public class TestPerformance {
 		List<UserModel> allUsers = new ArrayList<>();
 		allUsers = tourGuideService.getAllUsers();
 
+		Attraction attraction = gpsUtil.getAttractions().get(0);
+	//	allUsers.forEach(u -> u.addToVisitedLocations(new VisitedLocation(u.getUserId(), attraction, new Date())));
+
 		//Create an executor service with a thread pool of certain amount of threads
 		try {
-		ExecutorService executorService = Executors.newFixedThreadPool(42);
+		ExecutorService executorService = Executors.newFixedThreadPool(100);
 
 		//Execute the code as per in the method "trackUserLocation" in TourGuideService
 		for (UserModel user: allUsers) {
 			Runnable runnable = () -> {
-				tourGuideService.trackUserLocation(user);
+				user.addToVisitedLocations(new VisitedLocation(user.getUserId(), attraction, new Date()));
+				//tourGuideService.trackUserLocation(user);
+				rewardsService.calculateRewards(user);
+				assertTrue(user.getUserRewards().size() > 0);
 			};
 			executorService.execute(runnable);
 		}
@@ -122,6 +130,6 @@ public class TestPerformance {
 
 		//Asserting part that the time is as performant as wanted
 		System.out.println("highVolumeGetRewards: Time Elapsed: " + TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()) + " seconds."); 
-		assertTrue(TimeUnit.MINUTES.toMinutes(20) >= TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()));
+		assertTrue(TimeUnit.MINUTES.toSeconds(20) >= TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()));
 	}
 }

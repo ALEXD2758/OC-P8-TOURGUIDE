@@ -27,5 +27,4 @@ public class UserRewardModel {
 	public int getRewardPoints() {
 		return rewardPoints;
 	}
-	
 }

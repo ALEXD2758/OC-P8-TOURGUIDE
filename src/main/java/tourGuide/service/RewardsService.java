@@ -1,62 +1,66 @@
 package tourGuide.service;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
 import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.Location;
 import gpsUtil.location.VisitedLocation;
+import org.springframework.stereotype.Service;
 import rewardCentral.RewardCentral;
 import tourGuide.model.UserModel;
 import tourGuide.model.UserRewardModel;
 
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 @Service
 public class RewardsService {
+
 	//A statute mile is what is called more commonly a mile
-	//An international statute mile is 1,609.344 meters
+	//An international statute mile is 1609.344 meters
 	//A US statute mile (survey mile) is 1609.3472 meters
-    private static final double STATUTE_MILES_PER_NAUTICAL_MILE = 1.15077945;
+	private static final double STATUTE_MILES_PER_NAUTICAL_MILE = 1.15077945;
 
 	// proximity in miles
-    private int defaultProximityBuffer = 10;
+	private int defaultProximityBuffer = 10;
 	private int proximityBuffer = defaultProximityBuffer;
 	//Proximity range of the attraction
 	private int attractionProximityRange = 200;
 	private final GpsUtil gpsUtil;
 	private final RewardCentral rewardsCentral;
-	
+
 	public RewardsService(GpsUtil gpsUtil, RewardCentral rewardCentral) {
 		this.gpsUtil = gpsUtil;
 		this.rewardsCentral = rewardCentral;
 	}
-	
+
 	public void setProximityBuffer(int proximityBuffer) {
 		this.proximityBuffer = proximityBuffer;
 	}
-	
+
 	public void setDefaultProximityBuffer() {
 		proximityBuffer = defaultProximityBuffer;
 	}
 
 	/**
 	 * Calculate the rewards for each attraction in the visited location list
-	 * @param user
+	 * @param user the user model
 	 */
 	public void calculateRewards(UserModel user) {
-		List<VisitedLocation> userLocations = user.getVisitedLocations();
-		List<Attraction> attractions = gpsUtil.getAttractions();
-		
-		for(VisitedLocation visitedLocation : userLocations) {
-			for(Attraction attraction : attractions) {
-				if(user.getUserRewards().stream().filter(r -> r.attraction.attractionName.equals(attraction.attractionName)).count() == 0) {
-					if(nearAttraction(visitedLocation, attraction)) {
-						user.addUserReward(new UserRewardModel(visitedLocation, attraction, getRewardPoints(attraction, user)));
+		CopyOnWriteArrayList<VisitedLocation> userLocations = new CopyOnWriteArrayList<>();
+		List<Attraction> attractions = new CopyOnWriteArrayList<>();
+
+		userLocations.addAll(user.getVisitedLocations());
+		attractions.addAll(gpsUtil.getAttractions());
+
+		userLocations.forEach(v -> {
+			attractions.forEach(a -> {
+				if (user.getUserRewards().stream().filter(r -> r.attraction.attractionName.equals(a.attractionName)).count() == 0) {
+					if (nearAttraction(v, a)) {
+						user.addUserReward(new UserRewardModel(v, a, getRewardPoints(a, user)));
 					}
 				}
-			}
-		}
+			});
+		});
 	}
 
 	/**
@@ -90,22 +94,22 @@ public class RewardsService {
 	}
 
 	/**
-	 *
+	 * Get the distance between two locations
 	 * @param loc1 location 1 with latitude and longitude data
 	 * @param loc2 location 2 with latitude and longitude data
 	 * @return
 	 */
 	public double getDistance(Location loc1, Location loc2) {
-        double lat1 = Math.toRadians(loc1.latitude);
-        double lon1 = Math.toRadians(loc1.longitude);
-        double lat2 = Math.toRadians(loc2.latitude);
-        double lon2 = Math.toRadians(loc2.longitude);
+		double lat1 = Math.toRadians(loc1.latitude);
+		double lon1 = Math.toRadians(loc1.longitude);
+		double lat2 = Math.toRadians(loc2.latitude);
+		double lon2 = Math.toRadians(loc2.longitude);
 
-        double angle = Math.acos(Math.sin(lat1) * Math.sin(lat2)
-                               + Math.cos(lat1) * Math.cos(lat2) * Math.cos(lon1 - lon2));
+		double angle = Math.acos(Math.sin(lat1) * Math.sin(lat2)
+				+ Math.cos(lat1) * Math.cos(lat2) * Math.cos(lon1 - lon2));
 
-        double nauticalMiles = 60 * Math.toDegrees(angle);
-        double statuteMiles = STATUTE_MILES_PER_NAUTICAL_MILE * nauticalMiles;
-        return statuteMiles;
+		double nauticalMiles = 60 * Math.toDegrees(angle);
+		double statuteMiles = STATUTE_MILES_PER_NAUTICAL_MILE * nauticalMiles;
+		return statuteMiles;
 	}
 }

@@ -1,27 +1,25 @@
 package tourGuide.service;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import org.apache.commons.lang3.time.StopWatch;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
 import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.Location;
 import gpsUtil.location.VisitedLocation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import tourGuide.dto.UserPreferencesDTO;
 import tourGuide.helper.InternalTestHelper;
 import tourGuide.model.*;
 import tourGuide.tracker.Tracker;
 import tripPricer.Provider;
 import tripPricer.TripPricer;
+
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 public class TourGuideService {
@@ -93,7 +91,7 @@ public class TourGuideService {
 
 	/**
 	 * Get the VisitedLocation of the concerned user
-	 * If user.getVisitedLocations size is greather than 0 then get the lastVisitedLocation
+	 * If user.getVisitedLocations size is greater than 0 then get the lastVisitedLocation
 	 * Else trackUserLocation
 	 * @param user
 	 * @return a visitedLocation
@@ -179,9 +177,6 @@ public class TourGuideService {
 		List<Attraction> attractions = gpsUtil.getAttractions();
 		List<UserNearestAttractionsModel> nearestAttractions = new ArrayList<>();
 
-		StopWatch stopWatch = new StopWatch();
-
-		stopWatch.start();
 		List<Future> futuresList = new ArrayList<>();
 		for (Attraction attraction : attractions) {
 			Callable changeUserNearest = () -> new UserNearestAttractionsModel(attraction.attractionName,
@@ -208,8 +203,6 @@ public class TourGuideService {
 				.stream()
 				.sorted(Comparator.comparing(UserNearestAttractionsModel::getAttractionProximityRangeMiles)).limit(nbNearestAttractions)
 				.collect(Collectors.toList());
-		stopWatch.stop();
-		System.out.println("It required : " + stopWatch.getTime() + " milliseconds");
 
 		return listAttractionsSorted;
 	}

@@ -1,24 +1,24 @@
 package tourGuide;
 
-import static org.junit.Assert.assertTrue;
+import gpsUtil.GpsUtil;
+import gpsUtil.location.Attraction;
+import gpsUtil.location.VisitedLocation;
+import org.apache.commons.lang3.time.StopWatch;
+import org.junit.Test;
+import rewardCentral.RewardCentral;
+import tourGuide.helper.InternalTestHelper;
+import tourGuide.model.UserModel;
+import tourGuide.service.RewardsService;
+import tourGuide.service.TourGuideService;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang3.time.StopWatch;
-import org.junit.Ignore;
-import org.junit.Test;
-
-import gpsUtil.GpsUtil;
-import gpsUtil.location.Attraction;
-import gpsUtil.location.VisitedLocation;
-import rewardCentral.RewardCentral;
-import tourGuide.helper.InternalTestHelper;
-import tourGuide.service.RewardsService;
-import tourGuide.service.TourGuideService;
-import tourGuide.model.UserModel;
+import static org.junit.Assert.assertTrue;
 
 public class TestPerformance {
 	
@@ -42,7 +42,7 @@ public class TestPerformance {
 	 *          assertTrue(TimeUnit.MINUTES.toSeconds(20) >= TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()));
 	 */
 	
-	@Ignore
+
 	@Test
 	public void highVolumeTrackLocation() {
 		GpsUtil gpsUtil = new GpsUtil();
@@ -50,49 +50,86 @@ public class TestPerformance {
 		// Users should be incremented up to 100,000, and test finishes within 15 minutes
 		InternalTestHelper.setInternalUserNumber(100);
 		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
-
-		List<UserModel> allUsers = new ArrayList<>();
-		allUsers = tourGuideService.getAllUsers();
-		
-	    StopWatch stopWatch = new StopWatch();
-		stopWatch.start();
-		for(UserModel user : allUsers) {
-			tourGuideService.trackUserLocation(user);
-		}
-		stopWatch.stop();
 		tourGuideService.tracker.stopTracking();
 
+		//Create a list of UserModel containing all users
+		List<UserModel> allUsers = new ArrayList<>();
+		allUsers = tourGuideService.getAllUsers();
+
+		//Create a stopWatch and start it
+	    StopWatch stopWatch = new StopWatch();
+		stopWatch.start();
+		//Create an executor service with a thread pool of certain amount of threads
+		try {
+		ExecutorService executorService = Executors.newFixedThreadPool(42);
+
+		//Execute the code as per in the method "trackListUserLocations" in TourGuideService
+		//but without the calculation of rewards
+		for (UserModel user: allUsers) {
+			Runnable runnable = () -> {
+				VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
+				user.addToVisitedLocations(visitedLocation);
+			};
+			executorService.execute(runnable);
+		}
+			executorService.shutdown();
+			executorService.awaitTermination(15, TimeUnit.MINUTES);
+		}
+		catch (InterruptedException interruptedException) {
+		}
+		stopWatch.stop();
+
+		//Asserting part that the time is as performant as wanted
 		System.out.println("highVolumeTrackLocation: Time Elapsed: " + TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()) + " seconds."); 
 		assertTrue(TimeUnit.MINUTES.toSeconds(15) >= TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()));
+
 	}
-	
-	@Ignore
+
 	@Test
 	public void highVolumeGetRewards() {
 		GpsUtil gpsUtil = new GpsUtil();
 		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
 
 		// Users should be incremented up to 100,000, and test finishes within 20 minutes
-		InternalTestHelper.setInternalUserNumber(100);
+		InternalTestHelper.setInternalUserNumber(100000);
+		//Create a stopWatch and start it
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
 		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
-		
-	    Attraction attraction = gpsUtil.getAttractions().get(0);
-		List<UserModel> allUsers = new ArrayList<>();
-		allUsers = tourGuideService.getAllUsers();
-		allUsers.forEach(u -> u.addToVisitedLocations(new VisitedLocation(u.getUserId(), attraction, new Date())));
-	     
-	    allUsers.forEach(u -> rewardsService.calculateRewards(u));
-	    
-		for(UserModel user : allUsers) {
-			assertTrue(user.getUserRewards().size() > 0);
-		}
-		stopWatch.stop();
 		tourGuideService.tracker.stopTracking();
 
+		//Create a list of UserModel containing all users
+		List<UserModel> allUsers = new ArrayList<>();
+		allUsers = tourGuideService.getAllUsers();
+
+		Attraction attraction = gpsUtil.getAttractions().get(0);
+	//	allUsers.forEach(u -> u.addToVisitedLocations(new VisitedLocation(u.getUserId(), attraction, new Date())));
+
+		//Create an executor service with a thread pool of certain amount of threads
+		try {
+		ExecutorService executorService = Executors.newFixedThreadPool(100);
+
+		//Execute the code as per in the method "trackUserLocation" in TourGuideService
+		for (UserModel user: allUsers) {
+			Runnable runnable = () -> {
+				user.addToVisitedLocations(new VisitedLocation(user.getUserId(), attraction, new Date()));
+				//tourGuideService.trackUserLocation(user);
+				rewardsService.calculateRewards(user);
+				assertTrue(user.getUserRewards().size() > 0);
+			};
+			executorService.execute(runnable);
+		}
+			executorService.shutdown();
+			executorService.awaitTermination(15, TimeUnit.MINUTES);
+
+		}
+		catch (InterruptedException interruptedException) {
+		}
+
+		stopWatch.stop();
+
+		//Asserting part that the time is as performant as wanted
 		System.out.println("highVolumeGetRewards: Time Elapsed: " + TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()) + " seconds."); 
 		assertTrue(TimeUnit.MINUTES.toSeconds(20) >= TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()));
 	}
-	
 }

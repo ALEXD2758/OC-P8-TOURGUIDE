@@ -1,11 +1,6 @@
 package tourGuide.dto;
 
-import org.javamoney.moneta.Money;
 import tourGuide.model.UserPreferencesModel;
-
-import javax.money.CurrencyUnit;
-import javax.money.Monetary;
-
 
 public class UserPreferencesDTO {
 

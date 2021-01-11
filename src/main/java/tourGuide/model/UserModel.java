@@ -1,12 +1,12 @@
 package tourGuide.model;
 
+import gpsUtil.location.VisitedLocation;
+import tripPricer.Provider;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-
-import gpsUtil.location.VisitedLocation;
-import tripPricer.Provider;
 
 public class UserModel {
 	private final UUID userId;
@@ -70,11 +70,19 @@ public class UserModel {
 	}
 	
 	public void addUserReward(UserRewardModel userReward) {
-		if(userRewards.stream().filter(r -> !r.attraction.attractionName.equals(userReward.attraction)).count() == 0) {
-			userRewards.add(userReward);
-		}
+		userRewards.add(userReward);
 	}
-	
+
+	public void setVisitedLocations(List<VisitedLocation> visitedLocations) {
+		this.visitedLocations = visitedLocations;
+	}
+
+	public void setUserRewards(List<UserRewardModel> userRewards) {
+		this.userRewards.clear();
+		this.userRewards.addAll(userRewards);
+		this.userRewards = userRewards;
+	}
+
 	public List<UserRewardModel> getUserRewards() {
 		return userRewards;
 	}
@@ -97,20 +105,5 @@ public class UserModel {
 	
 	public List<Provider> getTripDeals() {
 		return tripDeals;
-	}
-
-	@Override
-	public String toString() {
-		return "User{" +
-				"userId=" + userId +
-				", userName='" + userName + '\'' +
-				", phoneNumber='" + phoneNumber + '\'' +
-				", emailAddress='" + emailAddress + '\'' +
-				", latestLocationTimestamp=" + latestLocationTimestamp +
-				", visitedLocations=" + visitedLocations +
-				", userRewards=" + userRewards +
-				", userPreferences=" + userPreferences +
-				", tripDeals=" + tripDeals +
-				'}';
 	}
 }

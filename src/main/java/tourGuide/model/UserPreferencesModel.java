@@ -6,7 +6,6 @@ import javax.money.Monetary;
 import org.javamoney.moneta.Money;
 import tourGuide.dto.UserPreferencesDTO;
 
-
 public class UserPreferencesModel {
 
 	private int attractionProximity = Integer.MAX_VALUE;

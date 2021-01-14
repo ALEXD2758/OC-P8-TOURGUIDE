@@ -26,6 +26,14 @@ public class Tracker extends Thread {
 		this.rewardsService = rewardsService;
 		executorService.submit(this);
 	}
+
+	/**
+	 * Starting the tracker
+	 */
+	public void startTracking() {
+		stop = false;
+		executorService.submit(this);
+	}
 	
 	/**
 	 * Assures to shutdown the Tracker thread

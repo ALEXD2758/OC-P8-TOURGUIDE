@@ -11,6 +11,7 @@ import gpsUtil.location.VisitedLocation;
 import tourGuide.dto.UserPreferencesDTO;
 import tourGuide.model.UserModel;
 import tourGuide.service.TourGuideService;
+import tourGuide.tracker.Tracker;
 import tripPricer.Provider;
 
 @RestController
@@ -26,6 +27,23 @@ public class TourGuideController {
     @GetMapping("/")
     public String index() {
         return "Greetings from TourGuide!";
+    }
+
+
+    /**
+     * HTML GET request that starts the tracker
+     */
+    @GetMapping("/gpsUtil/startTracker")
+    public void startTracker() {
+        tourGuideService.tracker.startTracking();
+    }
+
+    /**
+     * HTML GET request that stops the tracker
+     */
+    @GetMapping("/gpsUtil/stopTracker")
+    public void stopTracker() {
+        tourGuideService.tracker.stopTracking();
     }
 
     /** HTML GET request that returns a random location of the username bounded to the request

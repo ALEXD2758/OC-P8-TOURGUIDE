@@ -1,5 +1,3 @@
-package tourGuide;
-
 import gpsUtil.GpsUtil;
 import gpsUtil.location.VisitedLocation;
 import org.junit.Test;

@@ -65,7 +65,7 @@ public class Tracker extends Thread {
 
 			try {
 				tourGuideService.trackListUserLocation(users);
-				//users.forEach(u -> rewardsService.calculateRewards(u));
+
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

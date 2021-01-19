@@ -33,6 +33,8 @@ targetCompatibility = 1.8
 dependencies {
     compile("org.springframework.boot:spring-boot-starter-web")
     compile("org.springframework.boot:spring-boot-starter-actuator")
+    compile group: 'io.projectreactor', name: 'reactor-core', version: '3.4.2'
+    compile 'org.springframework.boot:spring-boot-starter-webflux'
     compile group: 'org.javamoney', name: 'moneta', version: '1.3'
 	compile group: 'com.jsoniter', name: 'jsoniter', version: '0.9.23'
 	

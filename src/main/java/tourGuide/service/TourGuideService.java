@@ -7,10 +7,13 @@ import gpsUtil.location.VisitedLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import tourGuide.dto.UserPreferencesDTO;
 import tourGuide.helper.InternalTestHelper;
 import tourGuide.model.*;
 import tourGuide.tracker.Tracker;
+import tourGuide.webclient.GpsUtilWebClient;
 import tripPricer.Provider;
 import tripPricer.TripPricer;
 
@@ -30,7 +33,7 @@ public class TourGuideService {
 	public final Tracker tracker;
 	boolean testMode = true;
 	private final int nbNearestAttractions = 5;
-
+	private GpsUtilWebClient gpsUtilWebClient = new GpsUtilWebClient();
 	/**
 	 * Constructor of the class TourGuideService for initializing users
 	 * if testMode (default value = true) then initializeInternalUsers based on internalUserNumber value in
@@ -125,7 +128,9 @@ public class TourGuideService {
 	 * @return the visited location of the random location of user
 	 */
 	public VisitedLocation trackUserLocation(UserModel user) {
-		VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
+		//VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
+		UUID userId = user.getUserId();
+		VisitedLocation visitedLocation = gpsUtilWebClient.getUserLocationWebClient(userId);
 		user.addToVisitedLocations(visitedLocation);
 		rewardsService.calculateRewards(user);
 		return visitedLocation;
@@ -148,7 +153,6 @@ public class TourGuideService {
 		executorService.shutdown();
 		executorService.awaitTermination(15, TimeUnit.MINUTES);
 
-		return;
 	}
 
 	/**

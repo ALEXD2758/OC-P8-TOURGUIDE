@@ -1,4 +1,7 @@
+package tourGuide;
+
 import gpsUtil.GpsUtil;
+
 import gpsUtil.location.Attraction;
 import gpsUtil.location.VisitedLocation;
 import org.apache.commons.lang3.time.StopWatch;
@@ -6,6 +9,7 @@ import org.junit.Test;
 import rewardCentral.RewardCentral;
 import tourGuide.helper.InternalTestHelper;
 import tourGuide.model.UserModel;
+import tourGuide.service.InternalTestService;
 import tourGuide.service.RewardsService;
 import tourGuide.service.TourGuideService;
 
@@ -45,9 +49,13 @@ public class TestPerformance {
 	public void highVolumeTrackLocation() {
 		GpsUtil gpsUtil = new GpsUtil();
 		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
+		InternalTestService internalTestService = new InternalTestService();
+		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService, internalTestService);
+
 		// Users should be incremented up to 100,000, and test finishes within 15 minutes
 		InternalTestHelper.setInternalUserNumber(100);
-		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
+
+
 		tourGuideService.tracker.stopTracking();
 
 		//Create a list of UserModel containing all users
@@ -89,11 +97,13 @@ public class TestPerformance {
 		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
 
 		// Users should be incremented up to 100,000, and test finishes within 20 minutes
-		InternalTestHelper.setInternalUserNumber(100000);
+		InternalTestHelper.setInternalUserNumber(100);
 		//Create a stopWatch and start it
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
-		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
+		InternalTestService internalTestService = new InternalTestService();
+		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService, internalTestService);
+
 		tourGuideService.tracker.stopTracking();
 
 		//Create a list of UserModel containing all users
@@ -101,7 +111,6 @@ public class TestPerformance {
 		allUsers = tourGuideService.getAllUsers();
 
 		Attraction attraction = gpsUtil.getAttractions().get(0);
-	//	allUsers.forEach(u -> u.addToVisitedLocations(new VisitedLocation(u.getUserId(), attraction, new Date())));
 
 		//Create an executor service with a thread pool of certain amount of threads
 		try {

@@ -1,3 +1,5 @@
+package tourGuide.service;
+
 import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.VisitedLocation;
@@ -6,8 +8,6 @@ import rewardCentral.RewardCentral;
 import tourGuide.helper.InternalTestHelper;
 import tourGuide.model.UserModel;
 import tourGuide.model.UserRewardModel;
-import tourGuide.service.RewardsService;
-import tourGuide.service.TourGuideService;
 
 import java.util.Date;
 import java.util.List;
@@ -24,7 +24,8 @@ public class TestRewardsService {
 		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
 
 		InternalTestHelper.setInternalUserNumber(0);
-		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
+		InternalTestService internalTestService = new InternalTestService();
+		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService, internalTestService);
 		
 		UserModel user = new UserModel(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
 		Attraction attraction = gpsUtil.getAttractions().get(0);
@@ -47,10 +48,12 @@ public class TestRewardsService {
 	public void nearAttraction() {
 		GpsUtil gpsUtil = new GpsUtil();
 		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
+		InternalTestHelper.setInternalUserNumber(1);
+
+		InternalTestService internalTestService = new InternalTestService();
+		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService, internalTestService);
 		rewardsService.setProximityBuffer(Integer.MAX_VALUE);
 
-		InternalTestHelper.setInternalUserNumber(1);
-		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
 		tourGuideService.tracker.stopTracking();
 
 		rewardsService.calculateRewards(tourGuideService.getAllUsers().get(0));

@@ -8,8 +8,11 @@ import org.springframework.stereotype.Service;
 import rewardCentral.RewardCentral;
 import tourGuide.model.UserModel;
 import tourGuide.model.UserRewardModel;
+import tourGuide.webclient.GpsUtilWebClient;
+import tourGuide.webclient.RewardsWebClient;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Service
@@ -27,6 +30,8 @@ public class RewardsService {
 	private int attractionProximityRange = 200;
 	private final GpsUtil gpsUtil;
 	private final RewardCentral rewardsCentral;
+	private final GpsUtilWebClient gpsUtilWebClient = new GpsUtilWebClient();
+	private final RewardsWebClient rewardsWebClient = new RewardsWebClient();
 
 	public RewardsService(GpsUtil gpsUtil, RewardCentral rewardCentral) {
 		this.gpsUtil = gpsUtil;
@@ -50,7 +55,7 @@ public class RewardsService {
 		List<Attraction> attractions = new CopyOnWriteArrayList<>();
 
 		userLocations.addAll(user.getVisitedLocations());
-		attractions.addAll(gpsUtil.getAttractions());
+		attractions.addAll(gpsUtilWebClient.getAllAttractionsWebClient());
 
 		userLocations.forEach(v -> {
 			attractions.forEach(a -> {
@@ -90,7 +95,10 @@ public class RewardsService {
 	 * @return int of a reward point
 	 */
 	public int getRewardPoints(Attraction attraction, UserModel user) {
-		return rewardsCentral.getAttractionRewardPoints(attraction.attractionId, user.getUserId());
+		UUID attractionId = attraction.attractionId;
+		UUID userId = user.getUserId();
+		return rewardsWebClient.getRewardPointsWebClient(attractionId, userId);
+		//return rewardsCentral.getAttractionRewardPoints(attraction.attractionId, user.getUserId());
 	}
 
 	/**

@@ -1,38 +1,85 @@
 package tourGuide.webclient;
 
-import gpsUtil.location.VisitedLocation;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
+import tourGuide.model.location.Attraction;
+import tourGuide.model.location.VisitedLocation;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 public class GpsUtilWebClient {
 
-    // Declare the value of the path present in application.properties
-    @Value("${gps.util.port")
-    private int GPSUTIL_PORT;
+    // Declare the base url
+    private final String BASE_URL = "http://localhost:8081";
+    // Declare the path to UserLocation
+    private final String PATH_USER_LOCATION = "/getUserLocation";
+    // Declare the path to AllAttractions
+    private final String PATH_ALL_ATTRACTIONS = "/getAllAttractions";
+    //Declare the AttractionId name to use in the request of the Rest Template Web Client
+    private final String USER_ID = "?userId=";
 
-    //Declare the variable serverPort to refer to GPS_UTIL_PORT
-    private final int serverPort = GPSUTIL_PORT;
 
+    //Define the User Location URI
+    private final String getUserLocationGpsUtilUri() {
+        return BASE_URL + PATH_USER_LOCATION;
+    }
 
-        private String baseURL = "localhost:8081";
-        private String path = "/getUserLocation";
-        private String path1 = "localhost:8081/getUserLocation";
-
-    //Define the gpsUtil URI
-    private String getGpsUtilUri() {
-        return baseURL + path;
-        //return "http://localhost:" + serverPort + "/getUserLocation";
+    //Define the All attractions URI
+    private final String getAllAttractionsGpsUtilUri() {
+        return BASE_URL + PATH_ALL_ATTRACTIONS;
     }
 
     public VisitedLocation getUserLocationWebClient(UUID userId) {
-        Mono<VisitedLocation> getUserLocationFlux= WebClient.create()
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        VisitedLocation visitedLocation;
+
+        ResponseEntity<VisitedLocation> result  =
+                restTemplate.getForEntity(getUserLocationGpsUtilUri() +
+                                USER_ID +
+                                userId
+                        ,VisitedLocation.class);
+        visitedLocation = result.getBody();
+        return visitedLocation;
+    }
+
+    public List<Attraction> getAllAttractionsWebClient() {
+        RestTemplate restTemplate = new RestTemplate();
+        VisitedLocation visitedLocation;
+
+        ResponseEntity<List<Attraction>> result  =
+                restTemplate.getForEntity(getAllAttractionsGpsUtilUri()
+                        , null, new ParameterizedTypeReference<List<Attraction>>(){});
+        List<Attraction> attractionList= result.getBody();
+        return attractionList;
+    }
+
+  /*  public VisitedLocation getUserLocationWebClient(UUID userId) {
+        Mono<VisitedLocation> getUserLocationMono= WebClient.create()
                 .get()
-                .uri(path1 + "?userId=" + userId)
+                .uri(getUserLocationGpsUtilUri + "?userId=" + userId)
                 .retrieve()
                 .bodyToMono(VisitedLocation.class);
-        return getUserLocationFlux.block();
+        return getUserLocationMono.block();
     }
+
+    public List<Attraction> getAllAttractionsWebClient() {
+        Flux<Attraction> getAllAttractionsFlux= WebClient.create()
+                .get()
+                .uri(pathGetAllAtractions )
+                .retrieve()
+                .bodyToFlux(Attraction.class);
+        List<Attraction> attractions = getAllAttractionsFlux.collectList().block();
+        return attractions;
+    }
+    */
 }

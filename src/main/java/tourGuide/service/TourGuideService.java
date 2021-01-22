@@ -2,38 +2,36 @@ package tourGuide.service;
 
 import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
-import gpsUtil.location.Location;
 import gpsUtil.location.VisitedLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 import tourGuide.dto.UserPreferencesDTO;
-import tourGuide.helper.InternalTestHelper;
 import tourGuide.model.*;
 import tourGuide.tracker.Tracker;
 import tourGuide.webclient.GpsUtilWebClient;
 import tripPricer.Provider;
 import tripPricer.TripPricer;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 public class TourGuideService {
 	private Logger logger = LoggerFactory.getLogger(TourGuideService.class);
 	private final GpsUtil gpsUtil;
 	private final RewardsService rewardsService;
+	private GpsUtilWebClient gpsUtilWebClient = new GpsUtilWebClient();
+	private final InternalTestService internalTestService;
 	private final TripPricer tripPricer = new TripPricer();
 	public final Tracker tracker;
 	boolean testMode = true;
 	private final int nbNearestAttractions = 5;
-	private GpsUtilWebClient gpsUtilWebClient = new GpsUtilWebClient();
+
 	/**
 	 * Constructor of the class TourGuideService for initializing users
 	 * if testMode (default value = true) then initializeInternalUsers based on internalUserNumber value in
@@ -43,14 +41,15 @@ public class TourGuideService {
 	 * @param gpsUtil
 	 * @param rewardsService
 	 */
-	public TourGuideService(GpsUtil gpsUtil, RewardsService rewardsService) {
+	public TourGuideService(GpsUtil gpsUtil, RewardsService rewardsService, InternalTestService internalTestService) {
 		this.gpsUtil = gpsUtil;
 		this.rewardsService = rewardsService;
+		this.internalTestService = internalTestService;
 		
 		if(testMode) {
 			logger.info("TestMode enabled");
 			logger.debug("Initializing users");
-			initializeInternalUsers();
+			internalTestService.initializeInternalUsers();
 			logger.debug("Finished initializing users");
 		}
 		tracker = new Tracker(this, rewardsService);
@@ -63,7 +62,7 @@ public class TourGuideService {
 	 * @return a user
 	 */
 	public UserModel getUser(String userName) {
-		return internalUserMap.get(userName);
+		return internalTestService.internalUserMap.get(userName);
 	}
 
 	/**
@@ -71,18 +70,9 @@ public class TourGuideService {
 	 * @return a list of users
 	 */
 	public List<UserModel> getAllUsers() {
-		return internalUserMap.values().stream().collect(Collectors.toList());
+		return internalTestService.internalUserMap.values().stream().collect(Collectors.toList());
 	}
 
-	/**
-	 * Add a user to the InternalUserMap if does not contain already the userName
-	 * @param user
-	 */
-	public void addUser(UserModel user) {
-		if(!internalUserMap.containsKey(user.getUserName())) {
-			internalUserMap.put(user.getUserName(), user);
-		}
-	}
 	/**
 	 * Get the UserRewards of the concerned user
 	 * @param user
@@ -114,7 +104,7 @@ public class TourGuideService {
 	public List<Provider> getTripDeals(UserModel user) {
 		int cumulativeRewardPoints = user.getUserRewards().stream().mapToInt(i -> i.getRewardPoints()).sum();
 
-		List<Provider> providers = tripPricer.getPrice(tripPricerApiKey, user.getUserId(),
+		List<Provider> providers = tripPricer.getPrice(internalTestService.tripPricerApiKey, user.getUserId(),
 				user.getUserPreferences().getNumberOfAdults(),
 				user.getUserPreferences().getNumberOfChildren(),
 				user.getUserPreferences().getTripDuration(), cumulativeRewardPoints);
@@ -178,7 +168,7 @@ public class TourGuideService {
 	public List<UserNearestAttractionsModel> getNearestAttractions(VisitedLocation visitedLocation, UserModel user) {
 
 		ExecutorService executorService = Executors.newFixedThreadPool(32);
-		List<Attraction> attractions = gpsUtil.getAttractions();
+		List<Attraction> attractions = gpsUtilWebClient.getAllAttractionsWebClient();
 		List<UserNearestAttractionsModel> nearestAttractions = new ArrayList<>();
 
 		List<Future> futuresList = new ArrayList<>();
@@ -222,68 +212,15 @@ public class TourGuideService {
 		    }); 
 	}
 
+	/**
+	 * Sets the user preferences with the new user preferences from UserPreferencesDTO
+	 *
+	 * @param userPreferencesDTO
+	 * @return
+	 */
 	public UserPreferencesModel userUpdatePreferences (UserPreferencesDTO userPreferencesDTO) {
 		UserModel user= getUser(userPreferencesDTO.getUsername());
 		user.setUserPreferences(new UserPreferencesModel(userPreferencesDTO));
 		return user.getUserPreferences();
-	}
-	
-	/**********************************************************************************
-	 * 
-	 * Methods Below: For Internal Testing
-	 * 
-	 **********************************************************************************/
-	private static final String tripPricerApiKey = "test-server-api-key";
-	// Database connection will be used for external users, but for testing purposes internal users are provided and stored in memory
-	private final Map<String, UserModel> internalUserMap = new HashMap<>();
-	private void initializeInternalUsers() {
-		IntStream.range(0, InternalTestHelper.getInternalUserNumber()).forEach(i -> {
-			String userName = "internalUser" + i;
-			String phone = "000";
-			String email = userName + "@tourGuide.com";
-			UserModel user = new UserModel(UUID.randomUUID(), userName, phone, email);
-			generateUserLocationHistory(user);
-			
-			internalUserMap.put(userName, user);
-		});
-		logger.debug("Created " + InternalTestHelper.getInternalUserNumber() + " internal test users.");
-	}
-
-	/**
-	 * Generate a user location history of 3 visited locations for the current user
-	 * @param user
-	 */
-	private void generateUserLocationHistory(UserModel user) {
-		IntStream.range(0, 3).forEach(i-> {
-			user.addToVisitedLocations(new VisitedLocation(user.getUserId(), new Location(generateRandomLatitude(), generateRandomLongitude()), getRandomTime()));
-		});
-	}
-
-	/**
-	 * Generate a random Longitude
-	 * @return double of longitude
-	 */
-	private double generateRandomLongitude() {
-		double leftLimit = -180;
-	    double rightLimit = 180;
-	    return leftLimit + new Random().nextDouble() * (rightLimit - leftLimit);
-	}
-	/**
-	 * Generate a random latitude
-	 * @return double of latitude
-	 */
-	private double generateRandomLatitude() {
-		double leftLimit = -85.05112878;
-	    double rightLimit = 85.05112878;
-	    return leftLimit + new Random().nextDouble() * (rightLimit - leftLimit);
-	}
-
-	/**
-	 * Generate a random LocalDateTime with java.time, in UTC time
-	 * @return Date of a random time
-	 */
-	private Date getRandomTime() {
-		LocalDateTime localDateTime = LocalDateTime.now().minusDays(new Random().nextInt(30));
-	    return Date.from(localDateTime.toInstant(ZoneOffset.UTC));
 	}
 }

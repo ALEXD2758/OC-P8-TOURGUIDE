@@ -1,8 +1,7 @@
 package tourGuide.service;
 
-import gpsUtil.GpsUtil;
-import gpsUtil.location.Attraction;
-import gpsUtil.location.VisitedLocation;
+import tourGuide.model.location.Attraction;
+import tourGuide.model.location.VisitedLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -10,8 +9,8 @@ import tourGuide.dto.UserPreferencesDTO;
 import tourGuide.model.*;
 import tourGuide.tracker.Tracker;
 import tourGuide.webclient.GpsUtilWebClient;
-import tripPricer.Provider;
-import tripPricer.TripPricer;
+import tourGuide.model.trip.Provider;
+import tourGuide.webclient.TripPricerWebClient;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -23,11 +22,10 @@ import java.util.stream.Collectors;
 @Service
 public class TourGuideService {
 	private Logger logger = LoggerFactory.getLogger(TourGuideService.class);
-	private final GpsUtil gpsUtil;
 	private final RewardsService rewardsService;
 	private GpsUtilWebClient gpsUtilWebClient = new GpsUtilWebClient();
 	private final InternalTestService internalTestService;
-	private final TripPricer tripPricer = new TripPricer();
+	private final TripPricerWebClient tripPricerWebClient = new TripPricerWebClient();
 	public final Tracker tracker;
 	boolean testMode = true;
 	private final int nbNearestAttractions = 5;
@@ -38,11 +36,9 @@ public class TourGuideService {
 	 * InternalTestHelper
 	 * Initialize Tracker
 	 * Ensure that the thread Tracker shuts down by calling addShutDownHook before closing the JVM
-	 * @param gpsUtil
 	 * @param rewardsService
 	 */
-	public TourGuideService(GpsUtil gpsUtil, RewardsService rewardsService, InternalTestService internalTestService) {
-		this.gpsUtil = gpsUtil;
+	public TourGuideService(RewardsService rewardsService, InternalTestService internalTestService) {
 		this.rewardsService = rewardsService;
 		this.internalTestService = internalTestService;
 		
@@ -104,11 +100,12 @@ public class TourGuideService {
 	public List<Provider> getTripDeals(UserModel user) {
 		int cumulativeRewardPoints = user.getUserRewards().stream().mapToInt(i -> i.getRewardPoints()).sum();
 
-		List<Provider> providers = tripPricer.getPrice(internalTestService.tripPricerApiKey, user.getUserId(),
-				user.getUserPreferences().getNumberOfAdults(),
-				user.getUserPreferences().getNumberOfChildren(),
-				user.getUserPreferences().getTripDuration(), cumulativeRewardPoints);
-		user.setTripDeals(providers);
+		UUID userId = user.getUserId();
+			List<Provider> providers = tripPricerWebClient.getPriceWebClient(internalTestService.tripPricerApiKey, userId,
+					user.getUserPreferences().getNumberOfAdults(),
+					user.getUserPreferences().getNumberOfChildren(),
+					user.getUserPreferences().getTripDuration(), cumulativeRewardPoints);
+			user.setTripDeals(providers);
 		return providers;
 	}
 
@@ -118,7 +115,6 @@ public class TourGuideService {
 	 * @return the visited location of the random location of user
 	 */
 	public VisitedLocation trackUserLocation(UserModel user) {
-		//VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
 		UUID userId = user.getUserId();
 		VisitedLocation visitedLocation = gpsUtilWebClient.getUserLocationWebClient(userId);
 		user.addToVisitedLocations(visitedLocation);
@@ -216,7 +212,7 @@ public class TourGuideService {
 	 * Sets the user preferences with the new user preferences from UserPreferencesDTO
 	 *
 	 * @param userPreferencesDTO
-	 * @return
+	 * @return new UserPreferences
 	 */
 	public UserPreferencesModel userUpdatePreferences (UserPreferencesDTO userPreferencesDTO) {
 		UserModel user= getUser(userPreferencesDTO.getUsername());

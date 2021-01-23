@@ -1,7 +1,7 @@
 package tourGuide.model;
 
-import gpsUtil.location.VisitedLocation;
-import tripPricer.Provider;
+import tourGuide.model.location.VisitedLocation;
+import tourGuide.model.trip.Provider;
 
 import java.util.ArrayList;
 import java.util.Date;

@@ -1,5 +1,6 @@
 package tourGuide.webclient;
 
+import org.springframework.http.HttpMethod;
 import tourGuide.model.location.Attraction;
 import tourGuide.model.location.VisitedLocation;
 import org.springframework.core.ParameterizedTypeReference;
@@ -54,32 +55,13 @@ public class GpsUtilWebClient {
 
     public List<Attraction> getAllAttractionsWebClient() {
         RestTemplate restTemplate = new RestTemplate();
-        VisitedLocation visitedLocation;
+        List<Attraction> attractionList;
 
-        ResponseEntity<List<Attraction>> result  =
-                restTemplate.getForEntity(getAllAttractionsGpsUtilUri()
-                        , null, new ParameterizedTypeReference<List<Attraction>>(){});
-        List<Attraction> attractionList= result.getBody();
+        ResponseEntity<List<Attraction>> result =
+                restTemplate.exchange(getAllAttractionsGpsUtilUri(),
+                        HttpMethod.GET, null, new ParameterizedTypeReference<List<Attraction>>() {
+                        });
+        attractionList= result.getBody();
         return attractionList;
     }
-
-  /*  public VisitedLocation getUserLocationWebClient(UUID userId) {
-        Mono<VisitedLocation> getUserLocationMono= WebClient.create()
-                .get()
-                .uri(getUserLocationGpsUtilUri + "?userId=" + userId)
-                .retrieve()
-                .bodyToMono(VisitedLocation.class);
-        return getUserLocationMono.block();
-    }
-
-    public List<Attraction> getAllAttractionsWebClient() {
-        Flux<Attraction> getAllAttractionsFlux= WebClient.create()
-                .get()
-                .uri(pathGetAllAtractions )
-                .retrieve()
-                .bodyToFlux(Attraction.class);
-        List<Attraction> attractions = getAllAttractionsFlux.collectList().block();
-        return attractions;
-    }
-    */
 }

@@ -1,19 +1,9 @@
 package tourGuide.controller;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import com.jsoniter.output.JsonStream;
-
-import gpsUtil.location.VisitedLocation;
-import tourGuide.dto.UserPreferencesDTO;
-import tourGuide.exception.UserNameNotFoundException;
-import tourGuide.exception.UserPreferencesNotFoundException;
-import tourGuide.model.UserModel;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 import tourGuide.service.TourGuideService;
-import tripPricer.Provider;
 
 @RestController
 public class HomeController {

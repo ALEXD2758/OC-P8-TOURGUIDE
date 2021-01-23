@@ -1,10 +1,11 @@
 package tourGuide.webclient;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
+import java.util.Arrays;
 import java.util.UUID;
 
 public class RewardsWebClient {
@@ -26,25 +27,27 @@ public class RewardsWebClient {
 
     public int getRewardPointsWebClient(UUID attractionId, UUID userId) {
         RestTemplate restTemplate = new RestTemplate();
-        int rewardPoints = 0;
+
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        int rewardPoints;
+
+        String Trucmuche = getRewardsCentralUri() +
+                ATTRACTION_ID +
+                attractionId +
+                USER_ID +
+                userId;
 
         ResponseEntity<Integer> result  =
                 restTemplate.getForEntity(getRewardsCentralUri() +
                         ATTRACTION_ID +
-                        attractionId +
+                                attractionId +
                         USER_ID +
-                        userId
+                                userId
                         ,Integer.class);
+
         rewardPoints = result.getBody();
         return rewardPoints;
     }
-     /*   Mono<Integer> getUserLocationMono= WebClient.create()
-                .get()
-                .uri(pathGetRewardPoints + "?attractionId=" + attractionId + "?userId=" + userId)
-                .retrieve()
-                .bodyToMono(Integer.class);
-        return getUserLocationMono.block();
-    */
-
-
 }

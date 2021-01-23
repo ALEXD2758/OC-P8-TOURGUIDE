@@ -1,18 +1,13 @@
 package tourGuide.controller;
 
 import com.jsoniter.output.JsonStream;
-import gpsUtil.location.VisitedLocation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-import tourGuide.dto.UserPreferencesDTO;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import tourGuide.exception.UserNameNotFoundException;
-import tourGuide.exception.UserPreferencesNotFoundException;
-import tourGuide.model.UserModel;
 import tourGuide.service.InternalTestService;
 import tourGuide.service.TourGuideService;
-import tripPricer.Provider;
-
-import java.util.List;
 
 @RestController
 public class RewardsController {

@@ -1,6 +1,6 @@
 package tourGuide.model;
 
-import gpsUtil.location.Location;
+import tourGuide.model.location.Location;
 
 public class UserNearestAttractionsModel {
 

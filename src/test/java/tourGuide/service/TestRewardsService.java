@@ -1,13 +1,12 @@
 package tourGuide.service;
 
-import gpsUtil.GpsUtil;
-import gpsUtil.location.Attraction;
-import gpsUtil.location.VisitedLocation;
+import tourGuide.model.location.Attraction;
+import tourGuide.model.location.VisitedLocation;
 import org.junit.Test;
-import rewardCentral.RewardCentral;
 import tourGuide.helper.InternalTestHelper;
 import tourGuide.model.UserModel;
 import tourGuide.model.UserRewardModel;
+import tourGuide.webclient.GpsUtilWebClient;
 
 import java.util.Date;
 import java.util.List;
@@ -20,15 +19,15 @@ public class TestRewardsService {
 
 	@Test
 	public void userGetRewards() {
-		GpsUtil gpsUtil = new GpsUtil();
-		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
+        GpsUtilWebClient gpsUtilWebClient = new GpsUtilWebClient();
+		RewardsService rewardsService = new RewardsService();
 
 		InternalTestHelper.setInternalUserNumber(0);
 		InternalTestService internalTestService = new InternalTestService();
-		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService, internalTestService);
+		TourGuideService tourGuideService = new TourGuideService( rewardsService, internalTestService);
 		
 		UserModel user = new UserModel(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
-		Attraction attraction = gpsUtil.getAttractions().get(0);
+		Attraction attraction = gpsUtilWebClient.getAllAttractionsWebClient().get(0);
 		user.addToVisitedLocations(new VisitedLocation(user.getUserId(), attraction, new Date()));
 		tourGuideService.trackUserLocation(user);
 		List<UserRewardModel> userRewards = user.getUserRewards();
@@ -38,20 +37,20 @@ public class TestRewardsService {
 	
 	@Test
 	public void isWithinAttractionProximity() {
-		GpsUtil gpsUtil = new GpsUtil();
-		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
-		Attraction attraction = gpsUtil.getAttractions().get(0);
+        GpsUtilWebClient gpsUtilWebClient = new GpsUtilWebClient();
+		RewardsService rewardsService = new RewardsService();
+		Attraction attraction = gpsUtilWebClient.getAllAttractionsWebClient().get(0);
 		assertTrue(rewardsService.isWithinAttractionProximity(attraction, attraction));
 	}
 
 	@Test
 	public void nearAttraction() {
-		GpsUtil gpsUtil = new GpsUtil();
-		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
+		GpsUtilWebClient gpsUtilWebClient = new GpsUtilWebClient();
+		RewardsService rewardsService = new RewardsService();
 		InternalTestHelper.setInternalUserNumber(1);
 
 		InternalTestService internalTestService = new InternalTestService();
-		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService, internalTestService);
+		TourGuideService tourGuideService = new TourGuideService(rewardsService, internalTestService);
 		rewardsService.setProximityBuffer(Integer.MAX_VALUE);
 
 		tourGuideService.tracker.stopTracking();
@@ -60,6 +59,6 @@ public class TestRewardsService {
 		List<UserRewardModel> userRewards = tourGuideService.getUserRewards(tourGuideService.getAllUsers().get(0));
 
 		System.out.println(userRewards);
-		assertEquals(gpsUtil.getAttractions().size(), userRewards.size());
+		assertEquals(gpsUtilWebClient.getAllAttractionsWebClient().size(), userRewards.size());
 	}
 }

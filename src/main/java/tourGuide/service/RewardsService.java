@@ -1,11 +1,9 @@
 package tourGuide.service;
 
-import gpsUtil.GpsUtil;
-import gpsUtil.location.Attraction;
-import gpsUtil.location.Location;
-import gpsUtil.location.VisitedLocation;
+import tourGuide.model.location.Location;
+import tourGuide.model.location.Attraction;
+import tourGuide.model.location.VisitedLocation;
 import org.springframework.stereotype.Service;
-import rewardCentral.RewardCentral;
 import tourGuide.model.UserModel;
 import tourGuide.model.UserRewardModel;
 import tourGuide.webclient.GpsUtilWebClient;
@@ -28,15 +26,8 @@ public class RewardsService {
 	private int proximityBuffer = defaultProximityBuffer;
 	//Proximity range of the attraction
 	private int attractionProximityRange = 200;
-	private final GpsUtil gpsUtil;
-	private final RewardCentral rewardsCentral;
 	private final GpsUtilWebClient gpsUtilWebClient = new GpsUtilWebClient();
 	private final RewardsWebClient rewardsWebClient = new RewardsWebClient();
-
-	public RewardsService(GpsUtil gpsUtil, RewardCentral rewardCentral) {
-		this.gpsUtil = gpsUtil;
-		this.rewardsCentral = rewardCentral;
-	}
 
 	public void setProximityBuffer(int proximityBuffer) {
 		this.proximityBuffer = proximityBuffer;
@@ -84,7 +75,7 @@ public class RewardsService {
 	 * @param attraction
 	 * @return boolean if visited location is within attraction range
 	 */
-	private boolean nearAttraction(VisitedLocation visitedLocation, Attraction attraction) {
+	public boolean nearAttraction(VisitedLocation visitedLocation, Attraction attraction) {
 		return getDistance(attraction, visitedLocation.location) > proximityBuffer ? false : true;
 	}
 

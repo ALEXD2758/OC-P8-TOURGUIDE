@@ -1,6 +1,7 @@
 package tourGuide.webclient;
 
 import org.springframework.http.HttpMethod;
+import tourGuide.exception.UUIDException;
 import tourGuide.model.location.Attraction;
 import tourGuide.model.location.VisitedLocation;
 import org.springframework.core.ParameterizedTypeReference;
@@ -36,6 +37,12 @@ public class GpsUtilWebClient {
     }
 
     public VisitedLocation getUserLocationWebClient(UUID userId) {
+
+   //     try {
+   //         UUID userIdCheck = UUID.fromString(userId.toString());
+   //     } catch (IllegalArgumentException e) {
+   //         throw new UUIDException(userId.toString());
+   //     }
 
         RestTemplate restTemplate = new RestTemplate();
 

@@ -4,6 +4,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
+import tourGuide.exception.UUIDException;
 
 import java.util.Arrays;
 import java.util.UUID;
@@ -26,18 +27,13 @@ public class RewardsWebClient {
     }
 
     public int getRewardPointsWebClient(UUID attractionId, UUID userId) {
+
         RestTemplate restTemplate = new RestTemplate();
 
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         int rewardPoints;
-
-        String Trucmuche = getRewardsCentralUri() +
-                ATTRACTION_ID +
-                attractionId +
-                USER_ID +
-                userId;
 
         ResponseEntity<Integer> result  =
                 restTemplate.getForEntity(getRewardsCentralUri() +

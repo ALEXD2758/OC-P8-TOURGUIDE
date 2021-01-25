@@ -97,13 +97,4 @@ public class InternalTestService {
 	public boolean checkIfUserNameExists(String userName) {
 		return internalUserMap.containsKey(userName) ? true : false;
 	}
-
-	/**
-	 * Check if the InternalUserMap contains already the userName
-	 *
-	 * @return the boolean of the check
-	 */
-	public boolean checkIfUserMapContainsUser() {
-		return internalUserMap.size() > 0 ? true : false;
-	}
 }

@@ -1,5 +1,6 @@
 package tourGuide;
 
+import tourGuide.exception.UUIDException;
 import tourGuide.model.UserRewardModel;
 import tourGuide.model.location.Attraction;
 import tourGuide.model.location.VisitedLocation;
@@ -48,7 +49,7 @@ public class TestPerformance {
 	
 
 	@Test
-	public void highVolumeTrackLocation() {
+	public void highVolumeTrackLocation() throws UUIDException {
 		RewardsService rewardsService = new RewardsService();
 		InternalTestService internalTestService = new InternalTestService();
 		GpsUtilWebClient gpsUtilWebClient = new GpsUtilWebClient();
@@ -143,8 +144,8 @@ public class TestPerformance {
 								r.attraction.attractionName.equals(a.attractionName)).count() == 0) {
 							if (rewardsService.nearAttraction(v, a)) {
 								user.addUserReward(new UserRewardModel(v, a,
-										rewardsWebClient.getRewardPointsWebClient(attractionId, userId)));
-							}
+                                            rewardsWebClient.getRewardPointsWebClient(attractionId, userId)));
+								}
 						}
 					});
 				});

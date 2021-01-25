@@ -1,6 +1,8 @@
 package tourGuide.controller;
 
 import com.jsoniter.output.JsonStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -11,6 +13,8 @@ import tourGuide.service.TourGuideService;
 
 @RestController
 public class RewardsController {
+
+    private Logger logger = LoggerFactory.getLogger(RewardsController.class);
 
 	@Autowired
 	TourGuideService tourGuideService;
@@ -25,7 +29,9 @@ public class RewardsController {
      */
     @GetMapping("/getRewards")
     public String getRewards(@RequestParam String userName) {
+        logger.debug("Access to /getRewards endpoint with username : " + userName);
         if(!internalTestService.checkIfUserNameExists(userName)) {
+            logger.error("This username does not exist" + userName);
             throw new UserNameNotFoundException(userName);
         }
     	return JsonStream.serialize(tourGuideService.getUserRewards(tourGuideService.getUser(userName)));

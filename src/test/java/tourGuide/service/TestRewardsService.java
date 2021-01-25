@@ -1,5 +1,6 @@
 package tourGuide.service;
 
+import tourGuide.exception.UUIDException;
 import tourGuide.model.location.Attraction;
 import tourGuide.model.location.VisitedLocation;
 import org.junit.Test;

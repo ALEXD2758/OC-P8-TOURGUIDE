@@ -10,7 +10,6 @@ public class UserNameNotFoundException extends RuntimeException {
 
     private final Logger logger = LoggerFactory.getLogger(UserNameNotFoundException.class);
 
-
     public UserNameNotFoundException(String userName) {
         super("Username not found : " + userName);
         logger.error("Username not found : " + userName);

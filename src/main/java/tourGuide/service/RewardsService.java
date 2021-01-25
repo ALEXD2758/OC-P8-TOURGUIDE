@@ -89,7 +89,6 @@ public class RewardsService {
 		UUID attractionId = attraction.attractionId;
 		UUID userId = user.getUserId();
 		return rewardsWebClient.getRewardPointsWebClient(attractionId, userId);
-		//return rewardsCentral.getAttractionRewardPoints(attraction.attractionId, user.getUserId());
 	}
 
 	/**

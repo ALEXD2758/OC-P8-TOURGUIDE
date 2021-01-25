@@ -1,5 +1,6 @@
 package tourGuide.service;
 
+import tourGuide.exception.UUIDException;
 import tourGuide.model.location.Attraction;
 import tourGuide.model.location.VisitedLocation;
 import org.slf4j.Logger;
@@ -163,7 +164,7 @@ public class TourGuideService {
 	 */
 	public List<UserNearestAttractionsModel> getNearestAttractions(VisitedLocation visitedLocation, UserModel user) {
 
-		ExecutorService executorService = Executors.newFixedThreadPool(32);
+		ExecutorService executorService = Executors.newFixedThreadPool(44);
 		List<Attraction> attractions = gpsUtilWebClient.getAllAttractionsWebClient();
 		List<UserNearestAttractionsModel> nearestAttractions = new ArrayList<>();
 
@@ -191,7 +192,8 @@ public class TourGuideService {
 
 		List<UserNearestAttractionsModel> listAttractionsSorted = nearestAttractions
 				.stream()
-				.sorted(Comparator.comparing(UserNearestAttractionsModel::getAttractionProximityRangeMiles)).limit(nbNearestAttractions)
+				.sorted(Comparator.comparing(UserNearestAttractionsModel::getAttractionProximityRangeMiles))
+				.limit(nbNearestAttractions)
 				.collect(Collectors.toList());
 
 		return listAttractionsSorted;
@@ -214,8 +216,8 @@ public class TourGuideService {
 	 * @param userPreferencesDTO
 	 * @return new UserPreferences
 	 */
-	public UserPreferencesModel userUpdatePreferences (UserPreferencesDTO userPreferencesDTO) {
-		UserModel user= getUser(userPreferencesDTO.getUsername());
+	public UserPreferencesModel userUpdatePreferences (String userName, UserPreferencesDTO userPreferencesDTO) {
+		UserModel user= getUser(userName);
 		user.setUserPreferences(new UserPreferencesModel(userPreferencesDTO));
 		return user.getUserPreferences();
 	}

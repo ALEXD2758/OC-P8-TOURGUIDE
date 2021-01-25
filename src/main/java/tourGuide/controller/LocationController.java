@@ -1,6 +1,9 @@
 package tourGuide.controller;
 
 import com.jsoniter.output.JsonStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import tourGuide.exception.UUIDException;
 import tourGuide.model.location.VisitedLocation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +16,8 @@ import tourGuide.service.TourGuideService;
 
 @RestController
 public class LocationController {
+
+    private Logger logger = LoggerFactory.getLogger(LocationController.class);
 
 	@Autowired
 	TourGuideService tourGuideService;
@@ -27,7 +32,9 @@ public class LocationController {
      */
     @GetMapping("/getLocation")
     public String getLocation(@RequestParam String userName) throws UserNameNotFoundException {
+        logger.debug("Access to /getLocation endpoint with username : " + userName);
         if(!internalTestService.checkIfUserNameExists(userName)) {
+            logger.error("This username does not exist" + userName);
             throw new UserNameNotFoundException(userName);
         }
          VisitedLocation visitedLocation =
@@ -43,7 +50,9 @@ public class LocationController {
      */
     @GetMapping("/getNearbyAttractions")
     public String getNearbyAttractions(@RequestParam String userName) {
+        logger.debug("Access to /getNearbyAttractions endpoint with username : " + userName);
         if(!internalTestService.checkIfUserNameExists(userName)) {
+            logger.error("This username does not exist" + userName);
             throw new UserNameNotFoundException(userName);
         }
 
@@ -58,6 +67,7 @@ public class LocationController {
      */
     @GetMapping("/getAllCurrentLocations")
     public String getAllCurrentLocations() {
+        logger.debug("Access to /getAllCurrentLocations endpoint");
     	return JsonStream.serialize(tourGuideService.getAllUsersLocation());
     }
 }

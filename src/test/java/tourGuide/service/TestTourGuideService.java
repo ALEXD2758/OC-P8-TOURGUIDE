@@ -3,6 +3,7 @@ package tourGuide.service;
 import org.junit.Assert;
 import org.junit.Test;
 import tourGuide.dto.UserPreferencesDTO;
+import tourGuide.exception.UUIDException;
 import tourGuide.helper.InternalTestHelper;
 import tourGuide.model.UserLocationModel;
 import tourGuide.model.UserModel;
@@ -20,7 +21,7 @@ import static org.junit.Assert.assertTrue;
 public class TestTourGuideService {
 
 	@Test
-	public void getUserLocation() {
+	public void getUserLocation() throws UUIDException {
 		RewardsService rewardsService = new RewardsService();
 		InternalTestHelper.setInternalUserNumber(0);
 		InternalTestService internalTestService = new InternalTestService();
@@ -78,7 +79,7 @@ public class TestTourGuideService {
 	}
 	
 	@Test
-	public void trackUser() {
+	public void trackUser() throws UUIDException {
 		RewardsService rewardsService = new RewardsService();
 		InternalTestHelper.setInternalUserNumber(0);
 
@@ -94,7 +95,7 @@ public class TestTourGuideService {
 	}
 
 	@Test
-	public void getNearestAttractions() {
+	public void getNearestAttractions() throws UUIDException {
 		RewardsService rewardsService = new RewardsService();
 		InternalTestHelper.setInternalUserNumber(1);
 

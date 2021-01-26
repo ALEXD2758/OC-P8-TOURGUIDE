@@ -41,12 +41,4 @@ public class RewardsWebClientITest {
                 .isNotNull();
         Assertions.assertThat(NumberUtils.isNumber(rewardPointsString)).isTrue();
     }
-
-    @Test(expected = UUIDException.class)
-    public void getRewardPointsWebClientShouldReturnUuidException() throws UUIDException {
-        RewardsWebClient rewardsWebClients = mock(RewardsWebClient.class);
-        UUID attractionId = UUID.fromString("1");
-        UUID userId = UUID.fromString("1");
-        rewardsWebClients.getRewardPointsWebClient(attractionId, userId);
-    }
 }

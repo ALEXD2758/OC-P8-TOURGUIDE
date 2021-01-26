@@ -3,14 +3,13 @@ package tourGuide.controller;
 import com.jsoniter.output.JsonStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tourGuide.exception.UUIDException;
-import tourGuide.model.location.VisitedLocation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import tourGuide.exception.UserNameNotFoundException;
 import tourGuide.model.UserModel;
+import tourGuide.model.location.VisitedLocation;
 import tourGuide.service.InternalTestService;
 import tourGuide.service.TourGuideService;
 

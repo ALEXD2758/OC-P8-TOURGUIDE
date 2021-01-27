@@ -86,27 +86,27 @@ http://localhost:8080/location/startTracker
 http://localhost:8080/location/stopTracker
 
 > **GET** - Get user location
-http://localhost:8080/getLocation
+http://localhost:8080/getLocation <br>
 **OBLIGATORY parameter**: userName
 
 > **GET - Get nearby attractions (defined as 5 at the moment)
-http://localhost:8080/getNearbyAttractions 
+http://localhost:8080/getNearbyAttractions <br>
 **OBLIGATORY parameter**: userName
 
 > **GET - Get all current locations of every user
 http://localhost:8080/getAllCurrentLocations
 
 > **GET - Get reward points for a user
-http://localhost:8080/getRewards 
+http://localhost:8080/getRewards <br>
 **OBLIGATORY parameter**: userName
 
 > **GET - Get trip deals for a user
-http://localhost:8080/getTripDeals 
+http://localhost:8080/getTripDeals <br>
 **OBLIGATORY parameter**: userName
 
 > **PUT - Update the user Preferences for a specific user
-http://localhost:8080/update/Preferences
-**OBLIGATORY body**: userPreferencesDTO (attractionProximity, currency (as currency unit, ex: "USD"), lowerPricePoint, highPricePoint, tripDuration, ticketQuantity, numberOfAdults, numberOfChildren)
+http://localhost:8080/update/Preferences <br>
+**OBLIGATORY body**: userPreferencesDTO (attractionProximity, currency (as currency unit, ex: "USD"), lowerPricePoint, highPricePoint, tripDuration, ticketQuantity, numberOfAdults, numberOfChildren) <br>
 **OBLIGATORY parameter**: userName
 
 ## Testing

@@ -1,16 +1,16 @@
-package tourGuide;
+package tourGuide.service;
 
-import gpsUtil.GpsUtil;
-import gpsUtil.location.VisitedLocation;
+import org.junit.Assert;
 import org.junit.Test;
-import rewardCentral.RewardCentral;
+import tourGuide.dto.UserPreferencesDTO;
+import tourGuide.exception.UUIDException;
 import tourGuide.helper.InternalTestHelper;
 import tourGuide.model.UserLocationModel;
 import tourGuide.model.UserModel;
 import tourGuide.model.UserNearestAttractionsModel;
-import tourGuide.service.RewardsService;
-import tourGuide.service.TourGuideService;
-import tripPricer.Provider;
+import tourGuide.model.UserPreferencesModel;
+import tourGuide.model.location.VisitedLocation;
+import tourGuide.model.trip.Provider;
 
 import java.util.List;
 import java.util.UUID;
@@ -21,11 +21,11 @@ import static org.junit.Assert.assertTrue;
 public class TestTourGuideService {
 
 	@Test
-	public void getUserLocation() {
-		GpsUtil gpsUtil = new GpsUtil();
-		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
+	public void getUserLocation() throws UUIDException {
+		RewardsService rewardsService = new RewardsService();
 		InternalTestHelper.setInternalUserNumber(0);
-		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
+		InternalTestService internalTestService = new InternalTestService();
+		TourGuideService tourGuideService = new TourGuideService(rewardsService, internalTestService);
 		
 		UserModel user = new UserModel(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
 		VisitedLocation visitedLocation = tourGuideService.trackUserLocation(user);
@@ -35,16 +35,17 @@ public class TestTourGuideService {
 	
 	@Test
 	public void addUser() {
-		GpsUtil gpsUtil = new GpsUtil();
-		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
+		RewardsService rewardsService = new RewardsService();
 		InternalTestHelper.setInternalUserNumber(0);
-		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
-		
+
+		InternalTestService internalTestService = new InternalTestService();
+		TourGuideService tourGuideService = new TourGuideService(rewardsService, internalTestService);
+
 		UserModel user = new UserModel(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
 		UserModel user2 = new UserModel(UUID.randomUUID(), "jon2", "000", "jon2@tourGuide.com");
 
-		tourGuideService.addUser(user);
-		tourGuideService.addUser(user2);
+		internalTestService.addUser(user);
+		internalTestService.addUser(user2);
 		
 		UserModel retrievedUser = tourGuideService.getUser(user.getUserName());
 		UserModel retrievedUser2 = tourGuideService.getUser(user2.getUserName());
@@ -57,16 +58,17 @@ public class TestTourGuideService {
 	
 	@Test
 	public void getAllUsers() {
-		GpsUtil gpsUtil = new GpsUtil();
-		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
+		RewardsService rewardsService = new RewardsService();
 		InternalTestHelper.setInternalUserNumber(0);
-		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
-		
+
+		InternalTestService internalTestService = new InternalTestService();
+		TourGuideService tourGuideService = new TourGuideService( rewardsService, internalTestService);
+
 		UserModel user = new UserModel(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
 		UserModel user2 = new UserModel(UUID.randomUUID(), "jon2", "000", "jon2@tourGuide.com");
 
-		tourGuideService.addUser(user);
-		tourGuideService.addUser(user2);
+		internalTestService.addUser(user);
+		internalTestService.addUser(user2);
 		
 		List<UserModel> allUsers = tourGuideService.getAllUsers();
 
@@ -77,11 +79,12 @@ public class TestTourGuideService {
 	}
 	
 	@Test
-	public void trackUser() {
-		GpsUtil gpsUtil = new GpsUtil();
-		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
+	public void trackUser() throws UUIDException {
+		RewardsService rewardsService = new RewardsService();
 		InternalTestHelper.setInternalUserNumber(0);
-		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
+
+		InternalTestService internalTestService = new InternalTestService();
+		TourGuideService tourGuideService = new TourGuideService(rewardsService, internalTestService);
 		
 		UserModel user = new UserModel(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
 		VisitedLocation visitedLocation = tourGuideService.trackUserLocation(user);
@@ -92,11 +95,12 @@ public class TestTourGuideService {
 	}
 
 	@Test
-	public void getNearestAttractions() {
-		GpsUtil gpsUtil = new GpsUtil();
-		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
+	public void getNearestAttractions() throws UUIDException {
+		RewardsService rewardsService = new RewardsService();
 		InternalTestHelper.setInternalUserNumber(1);
-		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
+
+		InternalTestService internalTestService = new InternalTestService();
+		TourGuideService tourGuideService = new TourGuideService(rewardsService, internalTestService);
 		
 		UserModel user = new UserModel(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
 		VisitedLocation visitedLocation = tourGuideService.trackUserLocation(user);
@@ -110,10 +114,11 @@ public class TestTourGuideService {
 
 	@Test
 	public void getAllUserLocations() {
-		GpsUtil gpsUtil = new GpsUtil();
-		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
+		RewardsService rewardsService = new RewardsService();
 		InternalTestHelper.setInternalUserNumber(5);
-		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
+
+		InternalTestService internalTestService = new InternalTestService();
+		TourGuideService tourGuideService = new TourGuideService(rewardsService, internalTestService);
 
 		List<UserLocationModel> listUserLocation = tourGuideService.getAllUsersLocation();
 
@@ -121,12 +126,14 @@ public class TestTourGuideService {
 
 		assertEquals(5, listUserLocation.size());
 	}
+
 	@Test
 	public void getTripDeals() {
-		GpsUtil gpsUtil = new GpsUtil();
-		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
+		RewardsService rewardsService = new RewardsService();
 		InternalTestHelper.setInternalUserNumber(0);
-		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
+
+		InternalTestService internalTestService = new InternalTestService();
+		TourGuideService tourGuideService = new TourGuideService(rewardsService, internalTestService);
 		
 		UserModel user = new UserModel(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
 
@@ -135,5 +142,24 @@ public class TestTourGuideService {
 		tourGuideService.tracker.stopTracking();
 		
 		assertEquals(5, providers.size());
+	}
+
+	@Test
+	public void userUpdatePreferences () {
+		UserPreferencesDTO userPreferencesDTO = new UserPreferencesDTO();
+		userPreferencesDTO.setNumberOfAdults(2);
+		userPreferencesDTO.setTripDuration(3);
+		userPreferencesDTO.setCurrency("USD");
+
+		UUID userUUID = UUID.fromString("987b1312-768d-41e1-90c1-e62da7c93739");
+		UserModel userModel = new UserModel(userUUID, "internalUser2", "1243456",
+				"internalUser2@Gmail.com");
+		Assert.assertEquals(userModel.getUserPreferences().getNumberOfAdults(), 1);
+		Assert.assertNotEquals(userModel.getUserPreferences().getNumberOfAdults(),
+				userPreferencesDTO.getNumberOfAdults());
+		//UserModel user= getUser(userPreferencesDTO.getUsername());
+		userModel.setUserPreferences(new UserPreferencesModel(userPreferencesDTO));
+		Assert.assertEquals(userModel.getUserPreferences().getNumberOfAdults(),
+				userPreferencesDTO.getNumberOfAdults());
 	}
 }

@@ -1,15 +1,16 @@
 package tourGuide.service;
 
-import gpsUtil.GpsUtil;
-import gpsUtil.location.Attraction;
-import gpsUtil.location.Location;
-import gpsUtil.location.VisitedLocation;
+import tourGuide.model.location.Location;
+import tourGuide.model.location.Attraction;
+import tourGuide.model.location.VisitedLocation;
 import org.springframework.stereotype.Service;
-import rewardCentral.RewardCentral;
 import tourGuide.model.UserModel;
 import tourGuide.model.UserRewardModel;
+import tourGuide.webclient.GpsUtilWebClient;
+import tourGuide.webclient.RewardsWebClient;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Service
@@ -25,13 +26,8 @@ public class RewardsService {
 	private int proximityBuffer = defaultProximityBuffer;
 	//Proximity range of the attraction
 	private int attractionProximityRange = 200;
-	private final GpsUtil gpsUtil;
-	private final RewardCentral rewardsCentral;
-
-	public RewardsService(GpsUtil gpsUtil, RewardCentral rewardCentral) {
-		this.gpsUtil = gpsUtil;
-		this.rewardsCentral = rewardCentral;
-	}
+	private final GpsUtilWebClient gpsUtilWebClient = new GpsUtilWebClient();
+	private final RewardsWebClient rewardsWebClient = new RewardsWebClient();
 
 	public void setProximityBuffer(int proximityBuffer) {
 		this.proximityBuffer = proximityBuffer;
@@ -50,7 +46,7 @@ public class RewardsService {
 		List<Attraction> attractions = new CopyOnWriteArrayList<>();
 
 		userLocations.addAll(user.getVisitedLocations());
-		attractions.addAll(gpsUtil.getAttractions());
+		attractions.addAll(gpsUtilWebClient.getAllAttractionsWebClient());
 
 		userLocations.forEach(v -> {
 			attractions.forEach(a -> {
@@ -79,7 +75,7 @@ public class RewardsService {
 	 * @param attraction
 	 * @return boolean if visited location is within attraction range
 	 */
-	private boolean nearAttraction(VisitedLocation visitedLocation, Attraction attraction) {
+	public boolean nearAttraction(VisitedLocation visitedLocation, Attraction attraction) {
 		return getDistance(attraction, visitedLocation.location) > proximityBuffer ? false : true;
 	}
 
@@ -90,7 +86,9 @@ public class RewardsService {
 	 * @return int of a reward point
 	 */
 	public int getRewardPoints(Attraction attraction, UserModel user) {
-		return rewardsCentral.getAttractionRewardPoints(attraction.attractionId, user.getUserId());
+		UUID attractionId = attraction.attractionId;
+		UUID userId = user.getUserId();
+		return rewardsWebClient.getRewardPointsWebClient(attractionId, userId);
 	}
 
 	/**

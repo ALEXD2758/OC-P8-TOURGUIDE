@@ -11,7 +11,7 @@ import java.util.UUID;
 public class RewardsWebClient {
 
     // Declare the base url
-    private final String BASE_URL = "http://localhost:8082";
+    private final String BASE_URL = "http://rewards:8082";
     // Declare the path
     private final String PATH = "/getRewardPoints";
     //Declare the AttractionId name to use in the request of the Rest Template Web Client

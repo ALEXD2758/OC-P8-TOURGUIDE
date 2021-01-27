@@ -16,7 +16,7 @@ import java.util.UUID;
 public class GpsUtilWebClient {
 
     // Declare the base url
-    private final String BASE_URL = "http://localhost:8081";
+    private final String BASE_URL = "http://gps:8081";
     // Declare the path to UserLocation
     private final String PATH_USER_LOCATION = "/getUserLocation";
     // Declare the path to AllAttractions

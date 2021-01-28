@@ -11,8 +11,10 @@ import java.util.UUID;
 
 public class TripPricerWebClient {
 
-    // Declare the base url
+    // Declare the base url (for docker deployment)
     private final String BASE_URL = "http://pricer:8083";
+    // Declare the base url (for localhost)
+    private final String BASE_URL_LOCALHOST = "http://localhost:8083";
     // Declare the path
     private final String PATH = "/getPrice";
     //Declare the apiKey name to use in the request of the Rest Template Web Client

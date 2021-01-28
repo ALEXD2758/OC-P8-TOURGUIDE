@@ -15,8 +15,10 @@ import java.util.UUID;
 
 public class GpsUtilWebClient {
 
-    // Declare the base url
+    // Declare the base url (for docker deployment)
     private final String BASE_URL = "http://gps:8081";
+    // Declare the base url (for localhost)
+    private final String BASE_URL_LOCALHOST = "http://localhost:8081";
     // Declare the path to UserLocation
     private final String PATH_USER_LOCATION = "/getUserLocation";
     // Declare the path to AllAttractions

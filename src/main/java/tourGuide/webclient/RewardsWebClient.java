@@ -10,8 +10,10 @@ import java.util.UUID;
 
 public class RewardsWebClient {
 
-    // Declare the base url
+    // Declare the base url (for docker deployment)
     private final String BASE_URL = "http://rewards:8082";
+    // Declare the base url (for localhost)
+    private final String BASE_URL_LOCALHOST = "http://localhost:8082";
     // Declare the path
     private final String PATH = "/getRewardPoints";
     //Declare the AttractionId name to use in the request of the Rest Template Web Client

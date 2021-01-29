@@ -3,6 +3,8 @@ package tourGuide.tracker;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import tourGuide.model.UserModel;
 import tourGuide.service.RewardsService;
 import tourGuide.service.TourGuideService;
@@ -12,18 +14,17 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+@Service
 public class Tracker extends Thread {
 	private Logger logger = LoggerFactory.getLogger(Tracker.class);
 	private static final long trackingPollingInterval = TimeUnit.SECONDS.toSeconds(10);
 	private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 	private final TourGuideService tourGuideService;
-	private final RewardsService rewardsService;
 	private boolean stop = false;
 
-	public Tracker(TourGuideService tourGuideService, RewardsService rewardsService) {
-		this.tourGuideService = tourGuideService;
-		this.rewardsService = rewardsService;
-		executorService.submit(this);
+	public Tracker(TourGuideService tourGuideService) {
+	this.tourGuideService = tourGuideService;
+		//executorService.submit(this);
 	}
 
 	/**

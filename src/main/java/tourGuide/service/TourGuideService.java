@@ -1,16 +1,15 @@
 package tourGuide.service;
 
-import tourGuide.exception.UUIDException;
-import tourGuide.model.location.Attraction;
-import tourGuide.model.location.VisitedLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import tourGuide.dto.UserPreferencesDTO;
 import tourGuide.model.*;
+import tourGuide.model.location.Attraction;
+import tourGuide.model.location.VisitedLocation;
+import tourGuide.model.trip.Provider;
 import tourGuide.tracker.Tracker;
 import tourGuide.webclient.GpsUtilWebClient;
-import tourGuide.model.trip.Provider;
 import tourGuide.webclient.TripPricerWebClient;
 
 import java.util.ArrayList;
@@ -23,13 +22,15 @@ import java.util.stream.Collectors;
 @Service
 public class TourGuideService {
 	private Logger logger = LoggerFactory.getLogger(TourGuideService.class);
-	private final RewardsService rewardsService;
-	private GpsUtilWebClient gpsUtilWebClient = new GpsUtilWebClient();
-	private final InternalTestService internalTestService;
-	private final TripPricerWebClient tripPricerWebClient = new TripPricerWebClient();
-	public final Tracker tracker;
+	private RewardsService rewardsService;
+	private GpsUtilWebClient gpsUtilWebClient;
+	private InternalTestService internalTestService;
+	private TripPricerWebClient tripPricerWebClient;
+	public Tracker tracker = new Tracker(this);
 	boolean testMode = true;
 	private final int nbNearestAttractions = 5;
+
+	ExecutorService executorService = Executors.newFixedThreadPool(88);
 
 	/**
 	 * Constructor of the class TourGuideService for initializing users
@@ -39,17 +40,22 @@ public class TourGuideService {
 	 * Ensure that the thread Tracker shuts down by calling addShutDownHook before closing the JVM
 	 * @param rewardsService
 	 */
-	public TourGuideService(RewardsService rewardsService, InternalTestService internalTestService) {
+	public TourGuideService(RewardsService rewardsService, InternalTestService internalTestService,
+							GpsUtilWebClient gpsUtilWebClient, TripPricerWebClient tripPricerWebClient) {
 		this.rewardsService = rewardsService;
 		this.internalTestService = internalTestService;
-		
+		this.gpsUtilWebClient = gpsUtilWebClient;
+		this.tripPricerWebClient = tripPricerWebClient;
+
 		if(testMode) {
 			logger.info("TestMode enabled");
 			logger.debug("Initializing users");
 			internalTestService.initializeInternalUsers();
 			logger.debug("Finished initializing users");
 		}
-		tracker = new Tracker(this, rewardsService);
+		//Start the tracker
+		tracker.startTracking();
+
 		addShutDownHook();
 	}
 
@@ -129,17 +135,12 @@ public class TourGuideService {
 	 * @throws InterruptedException
 	 */
 	public void trackListUserLocation(List<UserModel> userList) throws InterruptedException {
-		ExecutorService executorService = Executors.newFixedThreadPool(42);
-
 		for (UserModel user: userList) {
 			Runnable runnable = () -> {
 				trackUserLocation(user);
 			};
 			executorService.execute(runnable);
 		}
-		executorService.shutdown();
-		executorService.awaitTermination(15, TimeUnit.MINUTES);
-
 	}
 
 	/**
@@ -164,7 +165,6 @@ public class TourGuideService {
 	 */
 	public List<UserNearestAttractionsModel> getNearestAttractions(VisitedLocation visitedLocation, UserModel user) {
 
-		ExecutorService executorService = Executors.newFixedThreadPool(44);
 		List<Attraction> attractions = gpsUtilWebClient.getAllAttractionsWebClient();
 		List<UserNearestAttractionsModel> nearestAttractions = new ArrayList<>();
 

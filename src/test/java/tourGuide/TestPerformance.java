@@ -13,6 +13,7 @@ import tourGuide.service.RewardsService;
 import tourGuide.service.TourGuideService;
 import tourGuide.webclient.GpsUtilWebClient;
 import tourGuide.webclient.RewardsWebClient;
+import tourGuide.webclient.TripPricerWebClient;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -50,13 +51,16 @@ public class TestPerformance {
 
 	@Test
 	public void highVolumeTrackLocation() throws UUIDException {
-		RewardsService rewardsService = new RewardsService();
 		InternalTestService internalTestService = new InternalTestService();
-		GpsUtilWebClient gpsUtilWebClient = new GpsUtilWebClient();
 		InternalTestHelper internalTestHelper = new InternalTestHelper();
 		// Users should be incremented up to 100,000, and test finishes within 15 minutes
-		internalTestHelper.setInternalUserNumber(100);
-		TourGuideService tourGuideService = new TourGuideService(rewardsService, internalTestService);
+		internalTestHelper.setInternalUserNumber(1000);
+		GpsUtilWebClient gpsUtilWebClient = new GpsUtilWebClient();
+		TripPricerWebClient tripPricerWebClient = new TripPricerWebClient();
+		RewardsWebClient rewardsWebClient = new RewardsWebClient();
+		RewardsService rewardsService = new RewardsService(gpsUtilWebClient, rewardsWebClient);
+		TourGuideService tourGuideService = new TourGuideService(rewardsService, internalTestService,
+				gpsUtilWebClient, tripPricerWebClient);
 
 		tourGuideService.tracker.stopTracking();
 
@@ -69,7 +73,7 @@ public class TestPerformance {
 		stopWatch.start();
 		//Create an executor service with a thread pool of certain amount of threads
 		try {
-		ExecutorService executorService = Executors.newFixedThreadPool(100);
+		ExecutorService executorService = Executors.newFixedThreadPool(44);
 
 		//Execute the code as per in the method "trackListUserLocations" in TourGuideService
 		//but without the calculation of rewards
@@ -95,9 +99,6 @@ public class TestPerformance {
 
 	@Test
 	public void highVolumeGetRewards() {
-
-		RewardsService rewardsService = new RewardsService();
-
 		// Users should be incremented up to 100,000, and test finishes within 20 minutes
 
 		//Create a stopWatch and start it
@@ -107,11 +108,12 @@ public class TestPerformance {
 		InternalTestHelper internalTestHelper = new InternalTestHelper();
 		internalTestHelper.setInternalUserNumber(10);
 
-		TourGuideService tourGuideService = new TourGuideService(rewardsService, internalTestService);
-
 		GpsUtilWebClient gpsUtilWebClient = new GpsUtilWebClient();
+		TripPricerWebClient tripPricerWebClient = new TripPricerWebClient();
 		RewardsWebClient rewardsWebClient = new RewardsWebClient();
-
+		RewardsService rewardsService = new RewardsService(gpsUtilWebClient, rewardsWebClient);
+		TourGuideService tourGuideService = new TourGuideService(rewardsService, internalTestService,
+				gpsUtilWebClient, tripPricerWebClient);
 
 		tourGuideService.tracker.stopTracking();
 
@@ -123,7 +125,7 @@ public class TestPerformance {
 
 		//Create an executor service with a thread pool of certain amount of threads
 		try {
-		ExecutorService executorService = Executors.newFixedThreadPool(100);
+		ExecutorService executorService = Executors.newFixedThreadPool(44);
 
 		//Execute the code as per in the method "trackUserLocation" in TourGuideService
 		for (UserModel user: allUsers) {

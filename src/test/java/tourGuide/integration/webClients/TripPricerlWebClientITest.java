@@ -14,7 +14,6 @@ import java.util.UUID;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@ActiveProfiles("test")
 public class TripPricerlWebClientITest {
 
     @Autowired

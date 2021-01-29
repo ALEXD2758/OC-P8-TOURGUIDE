@@ -26,8 +26,13 @@ public class RewardsService {
 	private int proximityBuffer = defaultProximityBuffer;
 	//Proximity range of the attraction
 	private int attractionProximityRange = 200;
-	private final GpsUtilWebClient gpsUtilWebClient = new GpsUtilWebClient();
-	private final RewardsWebClient rewardsWebClient = new RewardsWebClient();
+	private GpsUtilWebClient gpsUtilWebClient;
+	private RewardsWebClient rewardsWebClient;
+
+	public RewardsService(GpsUtilWebClient gpsUtilWebClient, RewardsWebClient rewardsWebClient) {
+		this.gpsUtilWebClient = gpsUtilWebClient;
+		this.rewardsWebClient = rewardsWebClient;
+	}
 
 	public void setProximityBuffer(int proximityBuffer) {
 		this.proximityBuffer = proximityBuffer;

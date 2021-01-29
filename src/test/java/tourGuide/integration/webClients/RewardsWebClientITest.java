@@ -20,7 +20,7 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@ActiveProfiles("test")
+//@ActiveProfiles("test")
 public class RewardsWebClientITest {
 
     @Autowired

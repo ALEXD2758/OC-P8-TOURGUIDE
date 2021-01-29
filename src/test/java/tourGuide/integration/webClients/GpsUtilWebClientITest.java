@@ -17,7 +17,7 @@ import java.util.UUID;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@ActiveProfiles("test")
+//@ActiveProfiles("test")
 public class GpsUtilWebClientITest {
 
     @Autowired

@@ -17,6 +17,9 @@ import org.springframework.web.context.WebApplicationContext;
 import tourGuide.service.InternalTestService;
 import tourGuide.service.RewardsService;
 import tourGuide.service.TourGuideService;
+import tourGuide.webclient.GpsUtilWebClient;
+import tourGuide.webclient.RewardsWebClient;
+import tourGuide.webclient.TripPricerWebClient;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -50,10 +53,13 @@ public class HomeControllerITest {
 
     @Test
     public void test2_getStartTrackerITest() throws Exception {
-        RewardsService rewardsService = new RewardsService();
-
         InternalTestService internalTestService = new InternalTestService();
-        TourGuideService tourGuideService = new TourGuideService(rewardsService, internalTestService);
+        GpsUtilWebClient gpsUtilWebClient = new GpsUtilWebClient();
+        TripPricerWebClient tripPricerWebClient = new TripPricerWebClient();
+        RewardsWebClient rewardsWebClient = new RewardsWebClient();
+        RewardsService rewardsService = new RewardsService(gpsUtilWebClient, rewardsWebClient);
+        TourGuideService tourGuideService = new TourGuideService(rewardsService, internalTestService,
+                gpsUtilWebClient, tripPricerWebClient);
 
         tourGuideService.tracker.startTracking();
 
@@ -65,11 +71,13 @@ public class HomeControllerITest {
 
     @Test
     public void test3_getStopTrackerITest() throws Exception {
-
-        RewardsService rewardsService = new RewardsService();
-
         InternalTestService internalTestService = new InternalTestService();
-        TourGuideService tourGuideService = new TourGuideService(rewardsService, internalTestService);
+        GpsUtilWebClient gpsUtilWebClient = new GpsUtilWebClient();
+        TripPricerWebClient tripPricerWebClient = new TripPricerWebClient();
+        RewardsWebClient rewardsWebClient = new RewardsWebClient();
+        RewardsService rewardsService = new RewardsService(gpsUtilWebClient, rewardsWebClient);
+        TourGuideService tourGuideService = new TourGuideService(rewardsService, internalTestService,
+                gpsUtilWebClient, tripPricerWebClient);
 
         tourGuideService.tracker.stopTracking();
 

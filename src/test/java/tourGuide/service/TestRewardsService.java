@@ -8,6 +8,8 @@ import tourGuide.helper.InternalTestHelper;
 import tourGuide.model.UserModel;
 import tourGuide.model.UserRewardModel;
 import tourGuide.webclient.GpsUtilWebClient;
+import tourGuide.webclient.RewardsWebClient;
+import tourGuide.webclient.TripPricerWebClient;
 
 import java.util.Date;
 import java.util.List;
@@ -20,12 +22,16 @@ public class TestRewardsService {
 
 	@Test
 	public void userGetRewards() {
-        GpsUtilWebClient gpsUtilWebClient = new GpsUtilWebClient();
-		RewardsService rewardsService = new RewardsService();
+
 
 		InternalTestHelper.setInternalUserNumber(0);
 		InternalTestService internalTestService = new InternalTestService();
-		TourGuideService tourGuideService = new TourGuideService( rewardsService, internalTestService);
+		GpsUtilWebClient gpsUtilWebClient = new GpsUtilWebClient();
+		TripPricerWebClient tripPricerWebClient = new TripPricerWebClient();
+		RewardsWebClient rewardsWebClient = new RewardsWebClient();
+		RewardsService rewardsService = new RewardsService(gpsUtilWebClient, rewardsWebClient);
+		TourGuideService tourGuideService = new TourGuideService(rewardsService, internalTestService,
+				gpsUtilWebClient, tripPricerWebClient);
 		
 		UserModel user = new UserModel(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
 		Attraction attraction = gpsUtilWebClient.getAllAttractionsWebClient().get(0);
@@ -39,7 +45,8 @@ public class TestRewardsService {
 	@Test
 	public void isWithinAttractionProximity() {
         GpsUtilWebClient gpsUtilWebClient = new GpsUtilWebClient();
-		RewardsService rewardsService = new RewardsService();
+		RewardsWebClient rewardsWebClient = new RewardsWebClient();
+		RewardsService rewardsService = new RewardsService(gpsUtilWebClient, rewardsWebClient);
 		Attraction attraction = gpsUtilWebClient.getAllAttractionsWebClient().get(0);
 		assertTrue(rewardsService.isWithinAttractionProximity(attraction, attraction));
 	}
@@ -47,11 +54,14 @@ public class TestRewardsService {
 	@Test
 	public void nearAttraction() {
 		GpsUtilWebClient gpsUtilWebClient = new GpsUtilWebClient();
-		RewardsService rewardsService = new RewardsService();
+		RewardsWebClient rewardsWebClient = new RewardsWebClient();
+		RewardsService rewardsService = new RewardsService(gpsUtilWebClient, rewardsWebClient);
 		InternalTestHelper.setInternalUserNumber(1);
 
 		InternalTestService internalTestService = new InternalTestService();
-		TourGuideService tourGuideService = new TourGuideService(rewardsService, internalTestService);
+		TripPricerWebClient tripPricerWebClient = new TripPricerWebClient();
+		TourGuideService tourGuideService = new TourGuideService(rewardsService, internalTestService,
+				gpsUtilWebClient, tripPricerWebClient);
 		rewardsService.setProximityBuffer(Integer.MAX_VALUE);
 
 		tourGuideService.tracker.stopTracking();
